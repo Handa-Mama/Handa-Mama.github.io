@@ -1,0 +1,22 @@
+name: site check
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/**]
+    paths: [tools/site-check.js, .github/workflows/site-check.yml]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm i --no-save playwright@1.48.2 && npx playwright install --with-deps chromium
+      - name: CDN headers
+        run: curl -sSI "https://res.cloudinary.com/dkj22lm1g/image/upload/f_auto,q_auto,c_fill,w_800/handa-mama/scenes/cr-pot" -H "Origin: https://handa-mama.github.io" -H "Accept: image/webp,*/*"
+      - name: live site served files
+        run: curl -sS https://handa-mama.github.io/js/scenes.js | grep -n "PHOTOS\|retry\|fallback" | head; curl -sSI https://handa-mama.github.io/js/scenes.js | grep -i "cache-control\|last-modified"
+      - run: node tools/site-check.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: site-check, path: site-check.png }
