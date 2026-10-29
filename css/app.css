@@ -411,3 +411,12 @@ html.still .scene *, html.still .brand svg, html.still .sky-dots i, html.still .
 }
 .book-holder.closed-front::before { left: 52%; }
 .book-holder.closed-back::before { right: 52%; }
+
+/* painted pictures */
+.scene-photo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 60%;
+  user-select: none; -webkit-user-drag: none; background: #E9DFC8; }
+.book-3d .cover-art .scene-photo { position: static; }
+html.motion-on .page .scene-photo { animation: drift 26s ease-in-out infinite alternate; will-change: transform; }
+@keyframes drift { from { transform: scale(1.02) translate(0, 0); } to { transform: scale(1.1) translate(-2%, -1.5%); } }
+html.still .scene-photo { animation: none !important; }
+html.night .scene-photo { filter: saturate(.9); }

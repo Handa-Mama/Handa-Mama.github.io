@@ -316,6 +316,7 @@
     $('#shelf-view').hidden = true;
     $('#reader-view').hidden = false;
     $('#reader-title').textContent = b.title;
+    S.preload([[b.cover], ['night-sky'], ...b.pages.map((p) => [p.scene]), ['lesson'], ['goodnight', b.id]]);
     document.title = `${b.title} · හඳ මාමා කතන්දර`;
     const start = progress[b.id] || 0;
     requestAnimationFrame(() => layoutBook(start));

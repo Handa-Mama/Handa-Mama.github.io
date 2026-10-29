@@ -5,7 +5,7 @@
 - A wooden bookshelf of illustrated books, filtered by age (3–6, 5–8)
 - Books open from a hard cover, and pages turn like paper: drag a corner, swipe, tap, or use the arrow buttons or keys
 - Two-page spread on tablets and computers, one big page on phones
-- "Living pictures": every page has a gently moving illustration, and some have a tap moment (a hand icon shows where)
+- Rich painted illustrations on every page (made in Canva, served from the Cloudinary CDN), with a slow gentle drift when moving pictures are on
 - A lesson page and a goodnight page at the end of every story
 - Night mode (switches on automatically after 7 pm), soft page-turn sounds, remembers the last page
 - Parents' corner (press and hold the gear for 3 seconds): text size, night mode, sounds, still pictures
@@ -49,7 +49,17 @@ First paragraph (starts with එකමත් එක කාලෙක…)
 3. Run `node tools/build-stories.js`. It splits paragraphs into book pages (about 42 words each), checks for missing hidden joiners (ZWJ) in words like රාත්‍රියක්, and writes `data/stories.js`.
 4. Change `VERSION` in `sw.js` (for example `handa-mama-v2`) so phones pick up the new book.
 
-To see every available picture, open `tools/gallery.html` through the local server. Pictures are drawn in code in `js/art.js` (characters, trees, skies) and composed in `js/scenes.js` (one entry per scene). Tap moments are at the bottom of `scenes.js`.
+### Pictures
+
+Each scene name (for example `cr-pot`) is a painted picture made in Canva and uploaded to Cloudinary as
+`handa-mama/scenes/<scene name>` (goodnight pages use `goodnight-<book id>`). The site asks Cloudinary for the right size
+for each screen (`f_auto,q_auto,w_…`), and the service worker keeps every picture it has shown so books still read offline.
+
+To add a picture for a new scene: export it from Canva as a 4:3 JPG (1600×1200), upload it to Cloudinary with the
+public ID `handa-mama/scenes/<scene name>`, and add the name to `PHOTOS` in `js/scenes.js`.
+
+If a picture can't load (no signal and not saved yet), the page shows the drawn version of the scene instead.
+Those drawn versions live in `js/art.js` and `js/scenes.js`; open `tools/gallery.html` through the local server to see them.
 
 ## Project layout
 
@@ -58,7 +68,7 @@ index.html                 the app (bookshelf + reader + parents' corner)
 css/app.css                all styles, including the picture animations
 js/app.js                  shelf, book reader, settings, offline
 js/art.js                  drawing kit: animals, people, skies, trees
-js/scenes.js               the illustration for each page + tap moments
+js/scenes.js               picture for each page (Cloudinary), drawn fallbacks
 js/sound.js                page-turn and tap sounds (generated, no audio files)
 js/vendor/page-flip.*      StPageFlip 2.0.7 (MIT) — the page-turn engine
 data/stories.js            generated book data (do not edit by hand)

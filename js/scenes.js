@@ -322,12 +322,56 @@
     },
   };
 
-  function render(name, arg) {
+  // the drawn version of a scene (also the fallback when a painted picture can't load)
+  function drawn(name, arg) {
     const fn = scenes[name] || scenes['night-sky'];
     let inner;
     try { inner = fn(arg); } catch (e) { console.error('scene failed', name, e); inner = scenes['night-sky'](); }
     return `<svg class="scene" data-scene="${name}" viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">${inner}</svg>`;
   }
 
-  window.HM_SCENES = { render, taps, names: Object.keys(scenes) };
+  /* ---------- painted pictures (made in Canva, served by the Cloudinary CDN) ---------- */
+  const CDN = 'https://res.cloudinary.com/dkj22lm1g/image/upload';
+  const PHOTOS = new Set([
+    'cr-drought', 'cr-pot', 'cr-idea', 'cr-pebbles', 'cr-fly',
+    'fx-hungry', 'fx-grapes', 'fx-jump', 'fx-tired', 'fx-sour', 'fx-monkey', 'fx-leave',
+    'lm-king', 'lm-sleep', 'lm-catch', 'lm-release', 'lm-net', 'lm-rescue', 'lm-thanks', 'lm-friends',
+    'th-friends', 'th-mock', 'th-challenge', 'th-start', 'th-nap', 'th-walk', 'th-finish', 'th-cheer', 'th-sorry', 'th-smile', 'th-together',
+    'an-court', 'an-ask', 'an-smile', 'an-box', 'an-open', 'an-think', 'an-ask2', 'an-army', 'an-kind', 'an-kingdom',
+    'mp-home', 'mp-ask', 'mp-forest', 'mp-sea', 'mp-sea-real', 'mp-mountain', 'mp-mountain-real', 'mp-bears', 'mp-evening', 'mp-proud', 'mp-hug', 'mp-dream',
+    'lesson', 'night-sky',
+    'goodnight-pipasitha-kaputa', 'goodnight-nariya-saha-midi', 'goodnight-sinha-saha-meeya',
+    'goodnight-ibba-saha-haawa', 'goodnight-andare-saha-rajathuma', 'goodnight-mee-puncha',
+  ]);
+  const WIDTHS = [480, 800, 1200, 1600];
+  const SIZES = '(min-width: 900px) 46vw, 100vw';
+  const photoId = (name, arg) => (name === 'goodnight' ? `goodnight-${arg}` : name);
+  const url = (id, w) => `${CDN}/f_auto,q_auto,c_fill,w_${w}/handa-mama/scenes/${id}`;
+  const srcset = (id) => WIDTHS.map((w) => `${url(id, w)} ${w}w`).join(', ');
+
+  function render(name, arg) {
+    const id = photoId(name, arg);
+    if (!PHOTOS.has(id)) return drawn(name, arg);
+    return `<img class="scene scene-photo" data-scene="${name}" data-arg="${arg || ''}" src="${url(id, 800)}" srcset="${srcset(id)}" sizes="${SIZES}" alt="" decoding="async" draggable="false" onerror="HM_SCENES.fallback(this)">`;
+  }
+
+  // no signal and not saved yet: swap in the drawn picture
+  function fallback(img) {
+    img.outerHTML = drawn(img.dataset.scene, img.dataset.arg || undefined);
+  }
+
+  // fetch a book's pictures up front so pages turn instantly and stay readable offline
+  function preload(list) {
+    list.forEach(([name, arg]) => {
+      const id = photoId(name, arg);
+      if (!PHOTOS.has(id)) return;
+      const img = new Image();
+      img.decoding = 'async';
+      img.sizes = SIZES;
+      img.srcset = srcset(id);
+      img.src = url(id, 800);
+    });
+  }
+
+  window.HM_SCENES = { render, drawn, fallback, preload, taps, names: Object.keys(scenes) };
 })();
