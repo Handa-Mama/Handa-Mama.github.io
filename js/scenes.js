@@ -322,7 +322,7 @@
     },
   };
 
-  // the drawn version of a scene (also the fallback when a painted picture can't load)
+  // the drawn version of a scene (only for scenes that have no painted picture yet; see tools/gallery.html)
   function drawn(name, arg) {
     const fn = scenes[name] || scenes['night-sky'];
     let inner;
@@ -352,12 +352,23 @@
   function render(name, arg) {
     const id = photoId(name, arg);
     if (!PHOTOS.has(id)) return drawn(name, arg);
-    return `<img class="scene scene-photo" data-scene="${name}" data-arg="${arg || ''}" src="${url(id, 800)}" srcset="${srcset(id)}" sizes="${SIZES}" alt="" decoding="async" draggable="false" onerror="HM_SCENES.fallback(this)">`;
+    return `<img class="scene scene-photo" data-id="${id}" src="${url(id, 800)}" srcset="${srcset(id)}" sizes="${SIZES}" alt="" crossorigin="anonymous" decoding="async" draggable="false" onerror="HM_SCENES.retry(this)">`;
   }
 
-  // no signal and not saved yet: swap in the drawn picture
-  function fallback(img) {
-    img.outerHTML = drawn(img.dataset.scene, img.dataset.arg || undefined);
+  // a picture that failed (slow or dropped mobile connection): try again a little later with a plain,
+  // single-size request; if that fails too, keep a soft placeholder and try again when the signal returns
+  function retry(img) {
+    const n = +(img.dataset.tries || 0) + 1;
+    img.dataset.tries = n;
+    if (!img.classList.contains('waiting')) img.addEventListener('load', () => img.classList.remove('waiting'), { once: true });
+    img.classList.add('waiting');
+    if (n > 3) { img.dataset.tries = 0; window.addEventListener('online', () => retry(img), { once: true }); return; }
+    setTimeout(() => {
+      if (!img.isConnected) return;
+      img.removeAttribute('srcset');
+      img.removeAttribute('crossorigin');
+      img.src = `${url(img.dataset.id, 1200)}?r=${n}`;
+    }, 800 * n);
   }
 
   // fetch a book's pictures up front so pages turn instantly and stay readable offline
@@ -366,6 +377,7 @@
       const id = photoId(name, arg);
       if (!PHOTOS.has(id)) return;
       const img = new Image();
+      img.crossOrigin = 'anonymous';
       img.decoding = 'async';
       img.sizes = SIZES;
       img.srcset = srcset(id);
@@ -373,5 +385,5 @@
     });
   }
 
-  window.HM_SCENES = { render, drawn, fallback, preload, taps, names: Object.keys(scenes) };
+  window.HM_SCENES = { render, drawn, retry, preload, taps, names: Object.keys(scenes) };
 })();

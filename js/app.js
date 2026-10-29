@@ -192,7 +192,7 @@
       const text = el.querySelector('.text');
       if (!text || el.classList.contains('cover') || el.classList.contains('back')) return;
       probe.className = el.className;
-      probe.innerHTML = el.innerHTML;
+      probe.innerHTML = el.innerHTML.replace(/<img [^>]*>/g, '<i class="scene"></i>'); // measuring only: don't start picture downloads
       const pt = probe.querySelector('.text');
       const art = probe.querySelector('.art');
       const extra = probe.querySelector('.end-actions, .label');
@@ -472,6 +472,12 @@
     route();
 
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+      // a new version took over: reload once so this tab runs the new code too
+      const hadController = !!navigator.serviceWorker.controller;
+      let reloaded = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (hadController && !reloaded) { reloaded = true; location.reload(); }
+      });
       navigator.serviceWorker.register('sw.js').catch(() => { /* offline mode simply stays off */ });
     }
   }
