@@ -1,0 +1,46 @@
+{
+  "_help": "One entry per .txt file (file name without .txt), in shelf order. 'scenes' lists one picture per story paragraph (title, moral and goodnight paragraphs are not counted). If a story has more paragraphs than scenes, the last scene repeats. Scene names are defined in js/scenes.js.",
+  "05_pipasitha_kaputa": {
+    "id": "pipasitha-kaputa",
+    "ages": "3-6",
+    "color": "#3B6EA8",
+    "cover": "cr-pot",
+    "scenes": ["cr-drought", "cr-pot", "cr-idea", "cr-pebbles", "cr-fly"]
+  },
+  "04_nariya_saha_midi": {
+    "id": "nariya-saha-midi",
+    "ages": "3-6",
+    "color": "#C4572E",
+    "cover": "fx-grapes",
+    "scenes": ["fx-hungry", "fx-grapes", "fx-jump", "fx-tired", "fx-sour", "fx-monkey", "fx-leave"]
+  },
+  "02_sinha_saha_meeya": {
+    "id": "sinha-saha-meeya",
+    "ages": "3-6",
+    "color": "#C7861F",
+    "cover": "lm-friends",
+    "scenes": ["lm-king", "lm-sleep", "lm-catch", "lm-release", "lm-net", "lm-rescue", "lm-thanks", "lm-friends"]
+  },
+  "03_ibba_saha_haawa": {
+    "id": "ibba-saha-haawa",
+    "ages": "5-8",
+    "color": "#4F8A3B",
+    "cover": "th-start",
+    "scenes": ["th-friends", "th-mock", "th-challenge", "th-start", "th-nap", "th-walk", "th-finish", "th-cheer", "th-sorry", "th-smile", "th-together"]
+  },
+  "06_andara_saha_raja": {
+    "id": "andare-saha-rajathuma",
+    "ages": "5-8",
+    "color": "#6B4A9B",
+    "cover": "an-court",
+    "scenes": ["an-court", "an-ask", "an-smile", "an-box", "an-open", "an-think", "an-ask2", "an-army", "an-kind", "an-kingdom"]
+  },
+  "01_mee_puncha_katha": {
+    "id": "mee-puncha",
+    "ages": "5-8",
+    "color": "#2F7F79",
+    "cover": "mp-forest",
+    "long": true,
+    "scenes": ["mp-home", "mp-ask", "mp-forest", "mp-sea", "mp-mountain", "mp-bears", "mp-evening", "mp-proud", "mp-proud", "mp-sea", "mp-sea-real", "mp-mountain", "mp-mountain-real", "mp-bears", "mp-hug", "mp-dream"]
+  }
+}
