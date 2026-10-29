@@ -3,7 +3,7 @@
  * Everything the site needs is cached on the first visit, so books can be read
  * at bedtime with no signal. Change VERSION whenever you publish new stories.
  */
-const VERSION = 'handa-mama-v2';
+const VERSION = 'handa-mama-v3';
 // painted pictures come from the Cloudinary CDN; they are kept in their own cache so new site versions don't download them again
 const IMAGES = 'handa-mama-images-v1';
 const CDN_HOST = 'res.cloudinary.com';
@@ -50,8 +50,8 @@ self.addEventListener('fetch', (e) => {
   if (url.hostname === CDN_HOST) {
     // pictures never change at a given address: cache first, keep every one we fetch
     e.respondWith(
-      caches.open(IMAGES).then((c) => c.match(req).then((hit) => hit || fetch(req).then((res) => {
-        if (res.ok || res.type === 'opaque') c.put(req, res.clone());
+      caches.open(IMAGES).then((c) => c.match(req, { ignoreVary: true }).then((hit) => hit || fetch(req).then((res) => {
+        if (res.ok) c.put(req, res.clone()).catch(() => { /* storage full: still show it */ });
         return res;
       })))
     );
