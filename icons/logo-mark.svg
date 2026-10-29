@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="හඳ මාමා කතන්දර">
+  <defs>
+    <radialGradient id="hm-sky" cx="50%" cy="38%" r="65%">
+      <stop offset="0" stop-color="#34468F"/>
+      <stop offset="1" stop-color="#151C3B"/>
+    </radialGradient>
+    <linearGradient id="hm-moon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFE29A"/>
+      <stop offset="1" stop-color="#F2A93B"/>
+    </linearGradient>
+    <linearGradient id="hm-page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFBF1"/>
+      <stop offset="1" stop-color="#F1E4C6"/>
+    </linearGradient>
+    <mask id="hm-crescent">
+      <rect width="200" height="200" fill="#fff"/>
+      <circle cx="122" cy="62" r="40" fill="#000"/>
+    </mask>
+    <clipPath id="hm-round"><circle cx="100" cy="100" r="96"/></clipPath>
+  </defs>
+  <circle cx="100" cy="100" r="96" fill="url(#hm-sky)"/>
+  <g clip-path="url(#hm-round)">
+    <!-- stars -->
+    <g fill="#FFF3C9">
+      <path d="M150 40l2.6 6.4 6.4 2.6-6.4 2.6-2.6 6.4-2.6-6.4-6.4-2.6 6.4-2.6z"/>
+      <path d="M40 58l1.8 4.2 4.2 1.8-4.2 1.8-1.8 4.2-1.8-4.2-4.2-1.8 4.2-1.8z"/>
+      <circle cx="166" cy="84" r="2.2"/>
+      <circle cx="30" cy="102" r="1.8"/>
+      <circle cx="58" cy="30" r="1.6"/>
+      <circle cx="132" cy="24" r="1.4"/>
+    </g>
+    <!-- crescent moon (Handa Mama) -->
+    <g mask="url(#hm-crescent)">
+      <circle cx="96" cy="84" r="50" fill="url(#hm-moon)"/>
+    </g>
+    <!-- sleepy face on the moon -->
+    <path d="M62 86q7 6 14 0" fill="none" stroke="#7A4A1C" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M70 104q8 8 18 3" fill="none" stroke="#7A4A1C" stroke-width="3.2" stroke-linecap="round"/>
+    <circle cx="60" cy="98" r="6" fill="#F08A6B" opacity=".55"/>
+    <!-- sparkles rising from the book -->
+    <g fill="#FFE29A">
+      <path d="M124 104l1.8 4.4 4.4 1.8-4.4 1.8-1.8 4.4-1.8-4.4-4.4-1.8 4.4-1.8z"/>
+      <circle cx="140" cy="94" r="2"/>
+      <circle cx="112" cy="120" r="1.6"/>
+    </g>
+    <!-- open book -->
+    <path d="M24 150q38-14 76 2v34q-38-14-76-2z" fill="#B9472F"/>
+    <path d="M176 150q-38-14-76 2v34q38-14 76-2z" fill="#B9472F"/>
+    <path d="M30 140q36-13 70 4v32q-34-15-70-3z" fill="url(#hm-page)"/>
+    <path d="M170 140q-36-13-70 4v32q34-15 70-3z" fill="url(#hm-page)"/>
+    <g fill="none" stroke="#D9C7A0" stroke-width="2.2" stroke-linecap="round">
+      <path d="M42 150q22-7 46 1"/>
+      <path d="M42 159q22-7 46 1"/>
+      <path d="M112 151q24-8 46-1"/>
+      <path d="M112 160q24-8 46-1"/>
+    </g>
+    <path d="M100 144v32" stroke="#C9B48A" stroke-width="2"/>
+  </g>
+</svg>

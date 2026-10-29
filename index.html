@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="si">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>හඳ මාමා කතන්දර · Handa Mama Stories</title>
+<meta name="description" content="හඳ මාමා කියන නිදි කතා — Sinhala bedtime stories for children, read like a real picture book with moving pictures. Free, no ads, works offline.">
+<meta name="theme-color" content="#141B33">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:title" content="හඳ මාමා කතන්දර · Handa Mama Stories">
+<meta property="og:description" content="Sinhala bedtime stories for children — a real-feeling picture book with moving pictures.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://handa-mama.github.io/">
+<meta property="og:image" content="https://handa-mama.github.io/icons/logo-dark.png">
+<meta property="og:image:width" content="1308">
+<meta property="og:image:height" content="528">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://handa-mama.github.io/">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/logo-mark.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-48.png" sizes="48x48">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preload" href="fonts/noto-serif-sinhala-sinhala-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/gemunu-libre-sinhala-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="sky-dots" aria-hidden="true"></div>
+
+<!-- ================= Bookshelf ================= -->
+<main id="shelf-view" class="shelf-view">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false"> <defs> <radialGradient id="hm-sky" cx="50%" cy="38%" r="65%"> <stop offset="0" stop-color="#34468F"/> <stop offset="1" stop-color="#151C3B"/> </radialGradient> <linearGradient id="hm-moon" x1="0" y1="0" x2="1" y2="1"> <stop offset="0" stop-color="#FFE29A"/> <stop offset="1" stop-color="#F2A93B"/> </linearGradient> <linearGradient id="hm-page" x1="0" y1="0" x2="0" y2="1"> <stop offset="0" stop-color="#FFFBF1"/> <stop offset="1" stop-color="#F1E4C6"/> </linearGradient> <mask id="hm-crescent"> <rect width="200" height="200" fill="#fff"/> <circle cx="122" cy="62" r="40" fill="#000"/> </mask> <clipPath id="hm-round"><circle cx="100" cy="100" r="96"/></clipPath> </defs> <circle cx="100" cy="100" r="96" fill="url(#hm-sky)"/> <g clip-path="url(#hm-round)"> <g fill="#FFF3C9"> <path d="M150 40l2.6 6.4 6.4 2.6-6.4 2.6-2.6 6.4-2.6-6.4-6.4-2.6 6.4-2.6z"/> <path d="M40 58l1.8 4.2 4.2 1.8-4.2 1.8-1.8 4.2-1.8-4.2-4.2-1.8 4.2-1.8z"/> <circle cx="166" cy="84" r="2.2"/> <circle cx="30" cy="102" r="1.8"/> <circle cx="58" cy="30" r="1.6"/> <circle cx="132" cy="24" r="1.4"/> </g> <g mask="url(#hm-crescent)"> <circle cx="96" cy="84" r="50" fill="url(#hm-moon)"/> </g> <path d="M62 86q7 6 14 0" fill="none" stroke="#7A4A1C" stroke-width="3.4" stroke-linecap="round"/> <path d="M70 104q8 8 18 3" fill="none" stroke="#7A4A1C" stroke-width="3.2" stroke-linecap="round"/> <circle cx="60" cy="98" r="6" fill="#F08A6B" opacity=".55"/> <g fill="#FFE29A"> <path d="M124 104l1.8 4.4 4.4 1.8-4.4 1.8-1.8 4.4-1.8-4.4-4.4-1.8 4.4-1.8z"/> <circle cx="140" cy="94" r="2"/> <circle cx="112" cy="120" r="1.6"/> </g> <path d="M24 150q38-14 76 2v34q-38-14-76-2z" fill="#B9472F"/> <path d="M176 150q-38-14-76 2v34q38-14 76-2z" fill="#B9472F"/> <path d="M30 140q36-13 70 4v32q-34-15-70-3z" fill="url(#hm-page)"/> <path d="M170 140q-36-13-70 4v32q34-15 70-3z" fill="url(#hm-page)"/> <g fill="none" stroke="#D9C7A0" stroke-width="2.2" stroke-linecap="round"> <path d="M42 150q22-7 46 1"/> <path d="M42 159q22-7 46 1"/> <path d="M112 151q24-8 46-1"/> <path d="M112 160q24-8 46-1"/> </g> <path d="M100 144v32" stroke="#C9B48A" stroke-width="2"/> </g> </svg>
+      <div>
+        <h1>හඳ මාමා කතන්දර</h1>
+        <p>හඳ මාමා කියන නිදි කතා</p>
+      </div>
+    </div>
+    <button class="icon-btn night-btn" type="button" aria-label="රාත්‍රී / දවල් පෙනුම · Night mode"></button>
+    <button class="icon-btn" id="parents-btn" type="button" aria-label="දෙමාපියන්ට · Parents' corner (press and hold)">
+      <svg class="ring" viewBox="0 0 70 70" aria-hidden="true"><circle cx="35" cy="35" r="33"/></svg>
+    </button>
+  </header>
+
+  <nav class="filters" aria-label="වයස අනුව · Filter by age">
+    <button class="chip" type="button" data-age="all">සියලු කතා</button>
+    <button class="chip" type="button" data-age="3-6">වයස 3–6</button>
+    <button class="chip" type="button" data-age="5-8">වයස 5–8</button>
+  </nav>
+
+  <section class="shelf" id="shelf" aria-label="පොත් · Books"></section>
+
+  <footer class="shelf-foot">
+    හඳ මාමා කතන්දර · දැන්වීම් නැත · ගිණුම් නැත · අන්තර්ජාලය නැතිවත් කියවන්න පුළුවන්<br>
+    Free · no ads · no tracking · works offline
+  </footer>
+</main>
+
+<!-- ================= Reader ================= -->
+<section id="reader-view" class="reader-view" hidden aria-label="පොත · Book">
+  <div class="reader-bar">
+    <button class="back-btn" id="back-btn" type="button" aria-label="පොත් රාක්කයට · Back to the bookshelf"></button>
+    <div class="reader-title" id="reader-title"></div>
+    <button class="icon-btn" id="listen-btn" type="button" aria-label="අහන්න · Read aloud" hidden></button>
+    <button class="icon-btn" id="sound-btn" type="button"></button>
+    <button class="icon-btn night-btn" type="button" aria-label="රාත්‍රී / දවල් පෙනුම · Night mode"></button>
+  </div>
+  <div class="stage" id="stage"><div class="book-holder" id="book-holder"></div></div>
+  <div class="reader-foot">
+    <button class="turn-btn" id="prev-btn" type="button" aria-label="පෙර පිටුව · Previous page"></button>
+    <div class="progress" aria-live="polite"><span id="progress-text"></span><div class="progress-bar"><i id="progress-fill"></i></div></div>
+    <button class="turn-btn" id="next-btn" type="button" aria-label="ඊළඟ පිටුව · Next page"></button>
+  </div>
+</section>
+
+<!-- ================= Parents' corner ================= -->
+<dialog class="parents" id="parents" aria-labelledby="parents-title">
+  <header>
+    <h2 id="parents-title">දෙමාපියන්ට <small>Parents' corner</small></h2>
+    <button type="button" id="parents-close" aria-label="Close">×</button>
+  </header>
+  <div class="body">
+    <div class="setting">
+      <h3>අකුරු ප්‍රමාණය <small>Text size</small></h3>
+      <div class="seg">
+        <button type="button" data-set="text" data-val="s">කුඩා · Small</button>
+        <button type="button" data-set="text" data-val="m">මධ්‍යම · Medium</button>
+        <button type="button" data-set="text" data-val="l">විශාල · Large</button>
+      </div>
+    </div>
+    <div class="setting">
+      <h3>රාත්‍රී පෙනුම <small>Night mode</small></h3>
+      <div class="seg">
+        <button type="button" data-set="night" data-val="auto">ස්වයංක්‍රීය · After 7 pm</button>
+        <button type="button" data-set="night" data-val="on">සැමවිට · Always</button>
+        <button type="button" data-set="night" data-val="off">නැත · Off</button>
+      </div>
+    </div>
+    <div class="setting">
+      <h3>ශබ්ද <small>Page and tap sounds</small></h3>
+      <div class="seg">
+        <button type="button" data-set="sound" data-val="true">ඇත · On</button>
+        <button type="button" data-set="sound" data-val="false">නැත · Off</button>
+      </div>
+    </div>
+    <div class="setting">
+      <h3>චලනය වන පින්තූර <small>Moving pictures</small></h3>
+      <div class="seg">
+        <button type="button" data-set="motion" data-val="true">ඇත · On</button>
+        <button type="button" data-set="motion" data-val="false">නැත · Still pictures</button>
+      </div>
+      <p class="note">Turn off for a calmer screen. Pages then turn faster and pictures stay still.</p>
+    </div>
+    <div class="setting">
+      <h3>Reading progress</h3>
+      <button type="button" class="danger" id="clear-progress">Start all books from the beginning</button>
+    </div>
+    <div class="setting" style="border:0">
+      <h3>About &amp; privacy</h3>
+      <p class="note">හඳ මාමා කතන්දර is a free collection of Sinhala bedtime stories. There are no ads, no accounts and no tracking. Settings and the last page read are kept only on this device. Once a book has been opened, it can be read again without the internet.</p>
+      <p class="note">Tip: tap the little hand <span aria-hidden="true">👆</span> on a picture to play. Swipe, drag a page corner or use the arrow buttons to turn pages.</p>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="js/vendor/page-flip.browser.js"></script>
+<script src="data/stories.js"></script>
+<script src="js/art.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/sound.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
