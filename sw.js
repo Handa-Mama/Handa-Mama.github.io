@@ -4,7 +4,7 @@
  * at bedtime with no signal. Site files are always fetched fresh when online
  * (the saved copy is only used offline), so phones never get stuck on an old version.
  */
-const VERSION = 'handa-mama-v5';
+const VERSION = 'handa-mama-v6';
 // painted pictures come from the Cloudinary CDN; they are kept in their own cache so new site versions don't download them again
 const IMAGES = 'handa-mama-images-v1';
 const CDN_HOST = 'res.cloudinary.com';
@@ -25,10 +25,12 @@ const CORE = [
   'fonts/noto-serif-sinhala-sinhala-400-normal.woff2',
   'fonts/noto-serif-sinhala-sinhala-600-normal.woff2',
   'fonts/noto-serif-sinhala-latin-400-normal.woff2',
+  'fonts/noto-serif-sinhala-latin-600-normal.woff2',
   'fonts/gemunu-libre-sinhala-500-normal.woff2',
   'fonts/gemunu-libre-sinhala-700-normal.woff2',
   'fonts/gemunu-libre-sinhala-800-normal.woff2',
   'fonts/gemunu-libre-latin-500-normal.woff2',
+  'fonts/gemunu-libre-latin-700-normal.woff2',
 ];
 
 self.addEventListener('install', (e) => {
