@@ -246,7 +246,7 @@
       let fs = max;
       let artW = 100;
       const set = () => { pt.style.setProperty('--fs', fs + 'px'); inner.style.setProperty('--art-w', artW + '%'); };
-      const steps = wide ? [[46, 15], [42, 14], [38, 13], [34, 12]] : [[100, 16], [92, 16], [84, 15], [76, 15], [68, 14], [60, 13], [52, 12]];
+      const steps = wide ? [[46, 15], [42, 14], [38, 13], [34, 12]] : [[100, 16], [92, 16], [84, 15], [76, 15], [68, 14], [60, 14], [52, 14], [44, 14], [44, 12]];
       for (const [w, floor] of steps) {
         artW = w;
         fs = max; // a smaller picture leaves room for bigger words again

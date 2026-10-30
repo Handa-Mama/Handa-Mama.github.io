@@ -280,6 +280,10 @@ html.night .page::before { content: ""; position: absolute; inset: 0; z-index: 6
 .end-actions .again { box-shadow: 0 4px 0 #B87A1E; }
 .end-actions .home { box-shadow: 0 4px 0 #1A2445; }
 .end-actions button:active { transform: translateY(2px); box-shadow: none; }
+@media (max-height: 640px) {
+  .end-actions { gap: 6px 8px; }
+  .end-actions button { min-height: 44px; padding: 0 14px; font-size: 16px; }
+}
 .page.blank .page-inner { justify-content: center; align-items: center; }
 .page.blank .page-inner svg { width: 30%; opacity: .25; }
 
