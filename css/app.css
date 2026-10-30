@@ -118,9 +118,9 @@ html.night .shelf::after { content: ""; position: absolute; inset: 0; border-rad
 }
 .book-card:hover .book-3d, .book-card:focus-visible .book-3d { transform: rotateY(-18deg) translateY(-6px); }
 .book-card.opening .book-3d { transform: rotateY(-35deg) scale(1.15) translateY(-10px); transition-duration: .4s; }
-.book-3d .cover-art { position: absolute; left: 12%; right: 8%; top: 8%; height: 56%; border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 3px rgba(255,226,154,.85), 0 3px 8px rgba(0,0,0,.3); background: #DDEFF7; }
+.book-3d .cover-art { position: absolute; left: 12%; right: 8%; top: 8%; aspect-ratio: 4 / 3; border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 3px rgba(255,226,154,.85), 0 3px 8px rgba(0,0,0,.3); background: #DDEFF7; }
 .book-3d .cover-art svg { width: 100%; height: 100%; display: block; }
-.book-3d .cover-title { position: absolute; left: 10%; right: 6%; top: 68%; bottom: 6%; display: grid; place-items: center; font-weight: 800; color: #FFF6DE; font-size: clamp(17px, 2.2vw, 21px); line-height: 1.12; text-shadow: 0 2px 0 rgba(0,0,0,.25); }
+.book-3d .cover-title { position: absolute; left: 10%; right: 6%; top: 56%; bottom: 5%; display: grid; place-items: center; font-weight: 800; color: #FFF6DE; font-size: clamp(17px, 2.2vw, 21px); line-height: 1.12; text-shadow: 0 2px 0 rgba(0,0,0,.25); }
 .book-3d .age { position: absolute; top: -10px; left: -8px; z-index: 2; /* spine side: the page edges are on the right */ background: #FBF4E4; color: #3A2E26; font-size: 15px; font-weight: 700; padding: 4px 10px; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
 .book-3d .ribbon { position: absolute; top: -4px; right: 18%; width: 18px; height: 54px; background: var(--rose); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%); box-shadow: 0 2px 4px rgba(0,0,0,.3); }
 .book-meta { margin-top: 10px; font-size: 15px; color: #C9D2F2; min-height: 18px; }
@@ -137,7 +137,7 @@ html.night .shelf::after { content: ""; position: absolute; inset: 0; border-rad
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 10px 24px rgba(0,0,0,.25); transition: transform .2s;
 }
 .continue-card:active { transform: scale(.98); }
-.continue-card .thumb { position: relative; flex: none; width: 74px; height: 74px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 3px rgba(255,226,154,.85); background: linear-gradient(#E9D9B4, #CDB88E); }
+.continue-card .thumb { position: relative; flex: none; width: 92px; height: 69px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 3px rgba(255,226,154,.85); background: linear-gradient(#E9D9B4, #CDB88E); }
 .continue-card .thumb > * { position: absolute; inset: 0; width: 100%; height: 100%; }
 .continue-card .words { flex: 1; min-width: 0; display: grid; gap: 2px; }
 .continue-card small { font-size: 15px; color: #C9D2F2; font-weight: 500; }
@@ -212,11 +212,11 @@ html.night .page::before { content: ""; position: absolute; inset: 0; z-index: 6
 .--portrait .page.--right::after { width: 5%; }
 .page.--hard::after { display: none; }
 
-.page-inner { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 6.5% 7% 5%; gap: 4%; }
+.page-inner { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 6.5% 7% 5%; gap: 4%; }
 .page .side { display: contents; }
 .page.lesson .label { order: -1; }
 .page .art {
-  position: relative; flex: 1 1 auto; min-height: var(--art-min, 34%); border-radius: 14px; overflow: hidden;
+  position: relative; flex: 0 0 auto; width: var(--art-w, 100%); aspect-ratio: 4 / 3; align-self: center; border-radius: 14px; overflow: hidden;
   box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(122,82,53,.25), 0 6px 14px rgba(80,50,20,.18);
   background: #DDEFF7;
 }
@@ -246,9 +246,9 @@ html.night .page::before { content: ""; position: absolute; inset: 0; z-index: 6
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 0h3v3H0zM3 3h3v3H3z' fill='%23000' opacity='.06'/%3E%3C/svg%3E");
   color: #FFF6DE;
 }
-.cover-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 9% 9% 7%; text-align: center; }
+.cover-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 9% 9% 7%; text-align: center; container-type: size; }
 .cover-inner::before { content: ""; position: absolute; inset: 4%; border: 2px solid rgba(255,226,154,.7); border-radius: 12px; box-shadow: inset 0 0 0 5px transparent, inset 0 0 0 6px rgba(255,226,154,.35); pointer-events: none; }
-.cover-inner .cover-art { width: 100%; flex: 1 1 auto; min-height: 0; border-radius: 50% 50% 18px 18px / 30% 30% 18px 18px; overflow: hidden; position: relative;
+.cover-inner .cover-art { width: min(100%, 76cqh); aspect-ratio: 4 / 3; flex: 0 0 auto; border-radius: 18px; overflow: hidden; position: relative;
   box-shadow: 0 0 0 4px var(--marigold-2), 0 0 0 7px rgba(0,0,0,.15), 0 10px 20px rgba(0,0,0,.25); }
 .cover-inner .cover-art svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .cover-inner h2 { margin: 7% 0 0; font-size: clamp(26px, 4.4vw, 46px); line-height: 1.05; font-weight: 800; color: var(--marigold-2); text-shadow: 0 2px 0 rgba(0,0,0,.3); }
@@ -267,10 +267,9 @@ html.night .page::before { content: ""; position: absolute; inset: 0; z-index: 6
 .title-page h3 { font-family: var(--ui); font-weight: 500; font-size: clamp(18px, 2.4vw, 24px); color: var(--ink-soft); margin: 2% 0 0; }
 .title-page .orn { width: 60%; margin: 6% auto; height: 2px; background: linear-gradient(to right, transparent, var(--teak), transparent); position: relative; }
 .title-page .orn::after { content: "✦"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -54%); background: var(--paper); padding: 0 10px; color: var(--marigold); font-size: 20px; }
-.title-page .art { flex: 0 1 46%; }
+.title-page .art { width: 86%; }
 .title-page .small { font-family: var(--ui); font-size: 17px; color: var(--ink-soft); }
 .lesson .label { font-family: var(--ui); font-weight: 800; font-size: clamp(22px, 3vw, 30px); color: var(--rose); }
-.lesson .art, .goodnight .art { flex: 0 1 44%; }
 .lesson .text, .goodnight .text { text-align: center; }
 .goodnight .text { font-weight: 600; color: #2B3A67; }
 .end-actions { display: flex; gap: 8px 10px; justify-content: center; flex-wrap: wrap; }
@@ -447,15 +446,12 @@ html.still .scene *, html.still .brand svg, html.still .sky-dots i, html.still .
 .book-holder.closed-back::before { right: 52%; }
 
 /* painted pictures */
-.scene-photo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 60%;
+.scene-photo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: center;
   user-select: none; -webkit-user-drag: none; color: transparent;
   background: radial-gradient(60% 70% at 70% 25%, rgba(255,226,154,.55), transparent 70%), linear-gradient(#E9D9B4, #CDB88E); }
 .scene-photo.waiting { animation: breathe 2.4s ease-in-out infinite; }
 @keyframes breathe { 50% { filter: brightness(1.08); } }
 .art:has(> .scene-photo), .cover-art:has(> .scene-photo) { background: linear-gradient(#E9D9B4, #CDB88E); }
-.book-3d .cover-art .scene-photo { position: static; }
-html.motion-on .page .scene-photo { animation: drift 26s ease-in-out infinite alternate; }
-@keyframes drift { from { transform: scale(1.02) translate(0, 0); } to { transform: scale(1.1) translate(-2%, -1.5%); } }
 html.still .scene-photo { animation: none !important; }
 
 /* ---------- phones ---------- */
@@ -487,13 +483,13 @@ html.still .scene-photo { animation: none !important; }
 
 /* ---------- a phone on its side: one wide page, picture beside the words ---------- */
 html.wide-book .page-inner { flex-direction: row; align-items: stretch; gap: 4.5%; padding: 4% 4.5% 4.5%; }
-html.wide-book .page .art { flex: 0 0 var(--art-w, 46%); min-height: 0; }
+html.wide-book .page .art { width: var(--art-w, 46%); flex: 0 0 auto; align-self: center; }
 html.wide-book .page .side { display: flex; flex-direction: column; justify-content: center; flex: 1 1 0; min-width: 0; gap: 6%; }
 html.wide-book .page.title-page .side, html.wide-book .page.lesson .side, html.wide-book .page.goodnight .side { align-items: center; }
 html.wide-book .title-page .orn { margin: 4% auto; }
 html.wide-book .page .num { right: 4%; left: auto; }
 html.wide-book .cover-inner { flex-direction: row; align-items: center; gap: 5%; padding: 6% 7%; }
-html.wide-book .cover-inner .cover-art { flex: 0 0 48%; height: 100%; }
+html.wide-book .cover-inner .cover-art { width: min(48%, 112cqh); flex: 0 0 auto; }
 html.wide-book .cover-inner .side { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; }
 html.wide-book .cover-inner h2 { margin-top: 0; font-size: clamp(26px, 7vh, 44px); }
 html.wide-book .back .cover-inner, html.wide-book .page.blank .page-inner { flex-direction: column; }

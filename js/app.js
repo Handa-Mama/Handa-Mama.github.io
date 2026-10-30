@@ -239,22 +239,22 @@
       const art = probe.querySelector('.art');
       const inner = probe.querySelector('.page-inner');
       const side = probe.querySelector('.side');
-      // first the words get a little smaller, then the picture gives up some room, and only then
+      // keep the whole picture (always its own 4:3 shape) and the words as big as the page allows:
+      // the words get a little smaller first, then the whole picture gets smaller, and only then
       // do the words shrink further (tiny phones), so every line always fits on the page
       const fits = () => inner.scrollHeight <= inner.clientHeight && (!wide || side.scrollHeight <= side.clientHeight);
       let fs = max;
-      let artMin = 34;
-      const prop = wide ? '--art-w' : '--art-min'; // wide pages: the picture gives up width instead of height
-      const set = () => { pt.style.setProperty('--fs', fs + 'px'); inner.style.setProperty(prop, artMin + '%'); };
-      set();
-      for (const [am, floor] of wide ? [[46, 15], [40, 14], [34, 12]] : [[34, 16], [26, 15], [18, 12]]) {
-        artMin = am;
+      let artW = 100;
+      const set = () => { pt.style.setProperty('--fs', fs + 'px'); inner.style.setProperty('--art-w', artW + '%'); };
+      const steps = wide ? [[46, 15], [42, 14], [38, 13], [34, 12]] : [[100, 16], [92, 16], [84, 15], [76, 15], [68, 14], [60, 13], [52, 12]];
+      for (const [w, floor] of steps) {
+        artW = w;
         fs = max; // a smaller picture leaves room for bigger words again
         set();
         while (fs > floor && !fits()) { fs -= 0.5; set(); }
         if (fits()) break;
       }
-      if (art) el.querySelector('.page-inner').style.setProperty(prop, artMin + '%');
+      if (art) el.querySelector('.page-inner').style.setProperty('--art-w', artW + '%');
       text.style.setProperty('--fs', fs + 'px');
     });
     probe.remove();
