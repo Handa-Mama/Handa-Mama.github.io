@@ -213,6 +213,8 @@
     el.className = 'page ' + ({ cover: 'cover', back: 'back', title: 'title-page', lesson: 'lesson', goodnight: 'goodnight', blank: 'blank', story: 'story' }[d.type]);
     if (d.type === 'cover' || d.type === 'back') el.dataset.density = 'hard';
     el.innerHTML = pageHTML(d, i);
+    // a page's picture is drawn only once it is decoded: no empty frame when the page appears or is copied for turning
+    el.querySelectorAll('img').forEach((im) => { im.decoding = 'sync'; });
     return el;
   }
 
@@ -306,6 +308,7 @@
       startPage: Math.max(0, Math.min(startAt || 0, pages.length - 1)),
     });
     flip.loadFromHTML(pageEls);
+    predecode(pageEls);
     flip.on('flip', (e) => onFlip(e.data));
     flip.on('changeState', (e) => {
       const turningNow = e.data === 'flipping' || e.data === 'user_fold' || e.data === 'fold_corner';
@@ -314,6 +317,14 @@
       if (e.data === 'flipping') sound.rustle();
     });
     onFlip(flip.getCurrentPageIndex(), true);
+  }
+
+  // decode every picture in the book ahead of time, so turning to a page never waits for its picture
+  function predecode(pageEls) {
+    pageEls.forEach((el) => el.querySelectorAll('img').forEach((im) => {
+      const go = () => { if (im.decode) im.decode().catch(() => { /* not loaded yet or offline: drawn when it arrives */ }); };
+      if (im.complete && im.naturalWidth) go(); else im.addEventListener('load', go, { once: true });
+    }));
   }
 
   function wirePages(pageEls) {

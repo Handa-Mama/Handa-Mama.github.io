@@ -4,7 +4,7 @@
  * at bedtime with no signal. Site files are always fetched fresh when online
  * (the saved copy is only used offline), so phones never get stuck on an old version.
  */
-const VERSION = 'handa-mama-v6';
+const VERSION = 'handa-mama-v7';
 // painted pictures come from the Cloudinary CDN; they are kept in their own cache so new site versions don't download them again
 const IMAGES = 'handa-mama-images-v1';
 const CDN_HOST = 'res.cloudinary.com';
@@ -12,6 +12,7 @@ const CORE = [
   './',
   'index.html',
   'css/app.css',
+  'css/paper.png',
   'js/vendor/page-flip.browser.js',
   'data/stories.js',
   'js/art.js',

@@ -98,7 +98,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   box-shadow: inset 0 0 0 10px #6A4229, inset 0 0 0 14px #4A2F1F, 0 30px 60px rgba(0,0,0,.35);
   padding-top: 26px; padding-bottom: 0;
 }
-html.night .shelf { filter: brightness(.85); }
+html.night .shelf { position: relative; }
+html.night .shelf::after { content: ""; position: absolute; inset: 0; border-radius: 14px; pointer-events: none; background: rgba(0,0,0,.15); } /* a tint, not a filter: cheap while scrolling */
 .book-card {
   align-self: end; margin-bottom: 26px; border: 0; padding: 0; background: none; perspective: 900px;
   display: flex; flex-direction: column; align-items: center; text-align: center;
@@ -170,10 +171,10 @@ html.night .shelf { filter: brightness(.85); }
 .book-holder.closed-back { transform: translateX(25%); }
 html.still .book-holder { transition: none; }
 .book-holder::before { /* soft shadow under the book */
-  content: ""; position: absolute; left: 4%; right: 4%; bottom: -14px; height: 30px; border-radius: 50%;
-  background: rgba(0,0,0,.45); filter: blur(14px); z-index: -1;
+  content: ""; position: absolute; left: 0; right: 0; bottom: -24px; height: 48px;
+  background: radial-gradient(closest-side, rgba(0,0,0,.5), rgba(0,0,0,0)); z-index: -1;
 }
-html.night .book-holder { filter: brightness(.8) sepia(.18); }
+html.night .page::before { content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none; background: rgba(34, 20, 6, .24); }
 
 .reader-foot { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 6px 14px max(12px, env(safe-area-inset-bottom)); }
 .turn-btn {
@@ -191,7 +192,7 @@ html.night .book-holder { filter: brightness(.8) sepia(.18); }
 .page {
   background-color: var(--paper);
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .35 0 0 0 0 .2 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+    url("paper.png"),
     linear-gradient(to bottom, var(--paper), var(--paper-2));
   color: var(--ink);
   overflow: hidden;
@@ -445,10 +446,9 @@ html.still .scene *, html.still .brand svg, html.still .sky-dots i, html.still .
 @keyframes breathe { 50% { filter: brightness(1.08); } }
 .art:has(> .scene-photo), .cover-art:has(> .scene-photo) { background: linear-gradient(#E9D9B4, #CDB88E); }
 .book-3d .cover-art .scene-photo { position: static; }
-html.motion-on .page .scene-photo { animation: drift 26s ease-in-out infinite alternate; will-change: transform; }
+html.motion-on .page .scene-photo { animation: drift 26s ease-in-out infinite alternate; }
 @keyframes drift { from { transform: scale(1.02) translate(0, 0); } to { transform: scale(1.1) translate(-2%, -1.5%); } }
 html.still .scene-photo { animation: none !important; }
-html.night .scene-photo { filter: saturate(.9); }
 
 /* ---------- phones ---------- */
 .cover-inner { padding-bottom: 9%; }
