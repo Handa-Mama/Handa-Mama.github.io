@@ -1,9 +1,10 @@
 /*
  * හඳ මාමා කතන්දර — offline support
- * Everything the site needs is cached on the first visit, so books can be read
- * at bedtime with no signal. Change VERSION whenever you publish new stories.
+ * Everything the site needs is saved on the first visit, so books can be read
+ * at bedtime with no signal. Site files are always fetched fresh when online
+ * (the saved copy is only used offline), so phones never get stuck on an old version.
  */
-const VERSION = 'handa-mama-v3';
+const VERSION = 'handa-mama-v5';
 // painted pictures come from the Cloudinary CDN; they are kept in their own cache so new site versions don't download them again
 const IMAGES = 'handa-mama-images-v1';
 const CDN_HOST = 'res.cloudinary.com';
@@ -31,7 +32,10 @@ const CORE = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
+  // cache: 'reload' skips the browser's own HTTP cache, so the saved copy is the newest one
+  e.waitUntil(caches.open(VERSION)
+    .then((c) => c.addAll(CORE.map((u) => new Request(u, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {
@@ -42,7 +46,6 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// cache first, then network; new files are saved for next time
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
@@ -58,10 +61,12 @@ self.addEventListener('fetch', (e) => {
     return;
   }
   if (url.origin !== self.location.origin) return;
+  // site files: network first (always the newest version), saved copy when offline
   e.respondWith(
-    caches.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req).then((res) => {
+    fetch(req.mode === 'navigate' ? new Request(req.url, { cache: 'no-cache', credentials: 'same-origin' }) : new Request(req, { cache: 'no-cache' })).then((res) => {
       if (res.ok) { const copy = res.clone(); caches.open(VERSION).then((c) => c.put(req, copy)); }
       return res;
-    }).catch(() => caches.match('index.html')))
+    }).catch(() => caches.match(req, { ignoreSearch: true })
+      .then((hit) => hit || (req.mode === 'navigate' ? caches.match('index.html') : Response.error())))
   );
 });

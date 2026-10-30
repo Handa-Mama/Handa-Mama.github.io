@@ -2,7 +2,7 @@
 
 **හඳ මාමා කියන නිදි කතා** — Sinhala bedtime stories for children, read like a real picture book.
 
-- A wooden bookshelf of illustrated books, filtered by age (3–6, 5–8)
+- 22 classic tales on a wooden bookshelf of illustrated books, filtered by age (3–6, 5–8)
 - Books open from a hard cover, and pages turn like paper: drag a corner, swipe, tap, or use the arrow buttons or keys
 - Two-page spread on tablets and computers, one big page on phones
 - Rich painted illustrations on every page (made in Canva, served from the Cloudinary CDN), with a slow gentle drift when moving pictures are on
@@ -44,10 +44,10 @@ First paragraph (starts with එකමත් එක කාලෙක…)
 සුබ රාත්‍රියක්, පුංචි දරුවනි …                       ← goodnight page
 ```
 
-1. Save the story as `stories/07_my_story.txt` (UTF-8).
+1. Save the story as `stories/23_my_story.txt` (UTF-8).
 2. Add an entry to `stories/stories.config.json`: an `id`, the `ages`, a cover `color`, the `cover` picture, and one picture name per paragraph in `scenes`.
 3. Run `node tools/build-stories.js`. It splits paragraphs into book pages (about 42 words each), checks for missing hidden joiners (ZWJ) in words like රාත්‍රියක්, and writes `data/stories.js`.
-4. Change `VERSION` in `sw.js` (for example `handa-mama-v2`) so phones pick up the new book.
+4. Optionally change `VERSION` in `sw.js` (for example `handa-mama-v6`) so phones also refresh their offline copy straight away. Online visitors always get the newest files anyway.
 
 ### Pictures
 
