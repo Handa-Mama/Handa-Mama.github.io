@@ -66,7 +66,7 @@
   <div class="reader-bar">
     <button class="back-btn" id="back-btn" type="button" aria-label="පොත් රාක්කයට · Back to the bookshelf"></button>
     <div class="reader-title" id="reader-title"></div>
-    <button class="icon-btn" id="listen-btn" type="button" aria-label="අහන්න · Read aloud" hidden></button>
+    <button class="icon-btn read-btn" id="read-btn" type="button" aria-pressed="false" aria-label="මට කියවන්න · Read to me"></button>
     <button class="icon-btn" id="sound-btn" type="button"></button>
     <button class="icon-btn night-btn" type="button" aria-label="රාත්‍රී / දවල් පෙනුම · Night mode"></button>
   </div>
@@ -115,6 +115,14 @@
         <button type="button" data-set="motion" data-val="false">නැත · Still pictures</button>
       </div>
       <p class="note">Turn off for a calmer screen. Pages then turn faster and pictures stay still.</p>
+    </div>
+    <div class="setting">
+      <h3>කියවා දීම <small>Read to me</small></h3>
+      <div class="seg">
+        <button type="button" data-set="readRate" data-val="slow">හෙමින් · Slow</button>
+        <button type="button" data-set="readRate" data-val="normal">සාමාන්‍ය · Normal</button>
+      </div>
+      <p class="note">The ▶ button in a book reads the story aloud and turns the pages by itself. Reading aloud needs a Sinhala voice on the device. On Android: Settings › Text-to-speech › Google › Install voice data › Sinhala. Without one (for example on iPhone), the pages still turn by themselves at a gentle pace, with the words being read lit up.</p>
     </div>
     <div class="setting">
       <h3>Reading progress</h3>

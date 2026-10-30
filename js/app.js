@@ -15,7 +15,7 @@
     get(k, d) { try { const v = localStorage.getItem('hm:' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem('hm:' + k, JSON.stringify(v)); } catch (e) { /* ignore */ } },
   };
-  const settings = Object.assign({ text: 'm', night: 'auto', sound: true, motion: true }, store.get('settings', {}));
+  const settings = Object.assign({ text: 'm', night: 'auto', sound: true, motion: true, readRate: 'normal' }, store.get('settings', {}));
   const progress = store.get('progress', {});
   let ageFilter = store.get('age', 'all');
 
@@ -52,7 +52,8 @@
     prev: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M20 6L10 16l10 10" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     soundOn: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 12h5l7-6v20l-7-6H5z" fill="#C9D2F2"/><path d="M21 11a7 7 0 0 1 0 10M24.5 7.5a12 12 0 0 1 0 17" fill="none" stroke="#C9D2F2" stroke-width="2.6" stroke-linecap="round"/></svg>',
     soundOff: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 12h5l7-6v20l-7-6H5z" fill="#C9D2F2" opacity=".6"/><path d="M21 12l8 8M29 12l-8 8" stroke="#C9D2F2" stroke-width="2.6" stroke-linecap="round"/></svg>',
-    listen: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 18v-3a9 9 0 0 1 18 0v3" fill="none" stroke="#C9D2F2" stroke-width="2.6"/><rect x="5" y="17" width="6" height="9" rx="2.5" fill="#C9D2F2"/><rect x="21" y="17" width="6" height="9" rx="2.5" fill="#C9D2F2"/></svg>',
+    read: '<svg class="i-play" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 7.5c3.5-1.6 7-1.4 10 .8v17c-3-2.2-6.5-2.4-10-.8z" fill="#C9D2F2"/><path d="M17 8.3c1.2-.9 2.5-1.4 3.8-1.6" fill="none" stroke="#C9D2F2" stroke-width="2.2" stroke-linecap="round"/><path d="M19 13.2l9 5.3-9 5.3z" fill="#FFE29A"/></svg>',
+    pause: '<svg class="i-pause" viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="7" width="5" height="18" rx="1.6" fill="#3A2410"/><rect x="18" y="7" width="5" height="18" rx="1.6" fill="#3A2410"/></svg>',
     hand: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M13 16V7.5a2 2 0 0 1 4 0V15l5 1.2a3 3 0 0 1 2.3 3.4L23.4 26H13.6L9 20.5a2 2 0 0 1 2.8-2.8z" fill="#F2A93B" stroke="#7A4A1C" stroke-width="1.6" stroke-linejoin="round"/></svg>',
   };
   // the logo from the page header, reused inside the books (each copy gets its own ids,
@@ -139,6 +140,7 @@
   let flip = null;        // PageFlip instance
   let layoutKey = '';
   let current = 0;
+  let pageNodes = [];     // the page elements of the open book
   const RATIO = 440 / 600; // page width / height
 
   function buildPages(b, spread) {
@@ -213,6 +215,8 @@
     el.className = 'page ' + ({ cover: 'cover', back: 'back', title: 'title-page', lesson: 'lesson', goodnight: 'goodnight', blank: 'blank', story: 'story' }[d.type]);
     if (d.type === 'cover' || d.type === 'back') el.dataset.density = 'hard';
     el.innerHTML = pageHTML(d, i);
+    // a page's picture is drawn only once it is decoded: no empty frame when the page appears or is copied for turning
+    el.querySelectorAll('img').forEach((im) => { im.decoding = 'sync'; });
     return el;
   }
 
@@ -292,6 +296,7 @@
     holder.style.setProperty('--c', book.color);
 
     const pageEls = pages.map(makePage);
+    pageNodes = pageEls;
     fitText(pageEls, pageW, pageH, wide);
     pageEls.forEach((p) => el.appendChild(p));
     wirePages(pageEls);
@@ -306,6 +311,7 @@
       startPage: Math.max(0, Math.min(startAt || 0, pages.length - 1)),
     });
     flip.loadFromHTML(pageEls);
+    predecode(pageEls);
     flip.on('flip', (e) => onFlip(e.data));
     flip.on('changeState', (e) => {
       const turningNow = e.data === 'flipping' || e.data === 'user_fold' || e.data === 'fold_corner';
@@ -314,6 +320,14 @@
       if (e.data === 'flipping') sound.rustle();
     });
     onFlip(flip.getCurrentPageIndex(), true);
+  }
+
+  // decode every picture in the book ahead of time, so turning to a page never waits for its picture
+  function predecode(pageEls) {
+    pageEls.forEach((el) => el.querySelectorAll('img').forEach((im) => {
+      const go = () => { if (im.decode) im.decode().catch(() => { /* not loaded yet or offline: drawn when it arrives */ }); };
+      if (im.complete && im.naturalWidth) go(); else im.addEventListener('load', go, { once: true });
+    }));
   }
 
   function wirePages(pageEls) {
@@ -337,18 +351,6 @@
     });
   }
 
-  function visibleText(i) {
-    const idx = [i];
-    if (flip && flip.getOrientation && flip.getOrientation() === 'landscape' && i > 0) idx.push(i + 1);
-    return idx.map((k) => pages[k]).filter(Boolean).map((d) => {
-      if (d.type === 'story') return d.p.paras.join(' ');
-      if (d.type === 'cover' || d.type === 'title') return book.title;
-      if (d.type === 'lesson') return book.moral;
-      if (d.type === 'goodnight') return book.goodnight;
-      return '';
-    }).join(' ');
-  }
-
   function onFlip(i, initial) {
     current = i;
     const last = pages.length - 1;
@@ -366,7 +368,11 @@
     const spread = flip && flip.getOrientation() === 'landscape';
     holder.classList.toggle('closed-front', !!spread && i === 0);
     holder.classList.toggle('closed-back', !!spread && i === last);
-    if (speaking) stopSpeaking();
+    if (auto && !initial) {
+      autoRun++; if (hasSpeech) speechSynthesis.cancel(); lightUp(null);
+      const run = autoRun;
+      wait(450, run, readPage);
+    }
     if (!initial && atEnd) sound.chime();
   }
 
@@ -391,7 +397,7 @@
   }
 
   function closeBook() {
-    stopSpeaking();
+    stopAuto();
     if (flip) { try { flip.destroy(); } catch (e) { /* ignore */ } flip = null; }
     $('#book-holder').innerHTML = '';
     $('#reader-view').hidden = true;
@@ -427,24 +433,112 @@
     else renderShelf();
   }
 
-  /* ---------- reading aloud (only when the device has a Sinhala voice) ---------- */
-  let speaking = false;
+  /* ---------- "read to me": reads each page aloud and turns the pages by itself ----------
+     With a Sinhala voice on the device the story is spoken, a sentence at a time. Without one
+     (most iPhones, many Android phones) the pages still turn by themselves at a child's reading
+     pace, with the paragraph being read lit up, so a parent can read along. */
+  let auto = false;
+  let autoRun = 0;        // bumps on every start/stop, so callbacks from an old run do nothing
+  let autoTimer = null;
   let siVoice = null;
+  const keep = [];        // Chrome forgets the callbacks of utterances that are garbage collected
+  const hasSpeech = 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
   function findVoice() {
-    if (!('speechSynthesis' in window)) return;
-    siVoice = speechSynthesis.getVoices().find((v) => /^si/i.test(v.lang)) || null;
-    $('#listen-btn').hidden = !siVoice;
+    if (!hasSpeech) return;
+    const vs = speechSynthesis.getVoices();
+    siVoice = vs.find((v) => /^si([-_]|$)/i.test(v.lang) && v.localService) || vs.find((v) => /^si([-_]|$)/i.test(v.lang)) || null;
   }
-  function speak() {
-    if (!siVoice) return;
-    if (speaking) { stopSpeaking(); return; }
-    const u = new SpeechSynthesisUtterance(visibleText(current));
-    u.voice = siVoice; u.lang = siVoice.lang; u.rate = 0.85;
-    u.onend = () => { speaking = false; };
-    speaking = true;
-    speechSynthesis.speak(u);
+
+  // what to read on page k: one part per paragraph, each with the element to light up
+  function readingParts(k) {
+    const d = pages[k]; const el = pageNodes[k];
+    if (!d || !el) return [];
+    const part = (sel) => [...el.querySelectorAll(sel)].map((e) => ({ el: e, text: e.textContent.replace(/\s+/g, ' ').trim() })).filter((x) => x.text);
+    if (d.type === 'cover') return part('h2, h3');
+    if (d.type === 'story' || d.type === 'lesson' || d.type === 'goodnight') return part('.text p');
+    return []; // title, blank and back pages: a short pause
   }
-  function stopSpeaking() { if ('speechSynthesis' in window) speechSynthesis.cancel(); speaking = false; }
+  const sentences = (t) => t.match(/[^.!?…]+(?:[.!?…]+[”"']?|$)\s*/g) || [t];
+  const words = (t) => t.split(/\s+/).filter(Boolean).length;
+  const slow = () => settings.readRate === 'slow';
+
+  function lightUp(el) {
+    document.querySelectorAll('#book-holder .reading').forEach((x) => x.classList.remove('reading'));
+    if (el) el.classList.add('reading');
+  }
+
+  function wait(ms, run, next) { clearTimeout(autoTimer); autoTimer = setTimeout(() => { if (run === autoRun) next(); }, ms); }
+
+  // say one paragraph, a sentence at a time (long utterances get cut off on some phones)
+  function say(text, run, done) {
+    const list = sentences(text);
+    let n = 0;
+    const one = () => {
+      if (run !== autoRun) return;
+      if (n >= list.length) { done(); return; }
+      const t = list[n++].trim();
+      if (!t) { one(); return; }
+      const u = new SpeechSynthesisUtterance(t);
+      try { u.voice = siVoice; } catch (e) { /* an unusual voice object: the language below still picks it */ }
+      u.lang = siVoice.lang; u.rate = slow() ? 0.72 : 0.88; u.pitch = 1.05;
+      let finished = false;
+      const next = () => { if (finished) return; finished = true; const k = keep.indexOf(u); if (k >= 0) keep.splice(k, 1); one(); };
+      u.onend = next; u.onerror = next;
+      keep.push(u);
+      // some phones never report the end of a sentence: carry on after a generous guess
+      wait(2500 + words(t) * (slow() ? 1100 : 850), run, next);
+      speechSynthesis.speak(u);
+    };
+    one();
+  }
+
+  // read the visible page(s), then turn the page; stop after the goodnight page
+  function readPage() {
+    const run = autoRun;
+    if (!auto || !book || !flip) return;
+    const spread = flip.getOrientation() === 'landscape';
+    const idx = spread && current > 0 ? [current, current + 1] : [current];
+    const parts = idx.flatMap(readingParts);
+    const atEnd = idx.some((k) => pages[k] && (pages[k].type === 'goodnight' || pages[k].type === 'back' || pages[k].type === 'blank'));
+    let n = 0;
+    const next = () => {
+      if (run !== autoRun) return;
+      if (n < parts.length) {
+        const p = parts[n++];
+        lightUp(p.el);
+        if (siVoice) say(p.text, run, () => wait(350, run, next));
+        else wait(Math.max(2200, words(p.text) * (slow() ? 900 : 650)), run, next); // a child's reading pace
+        return;
+      }
+      lightUp(null);
+      if (atEnd || current >= pages.length - 1) { stopAuto(); return; }
+      wait(parts.length ? 700 : 1600, run, () => flip.flipNext('top')); // onFlip carries on reading
+    };
+    next();
+  }
+
+  function startAuto() {
+    if (!book) return;
+    findVoice();
+    auto = true; autoRun++;
+    $('#read-btn').classList.add('on');
+    $('#read-btn').setAttribute('aria-pressed', 'true');
+    if (!siVoice && !store.get('voiceTip')) {
+      store.set('voiceTip', 1);
+      toast('සිංහල කටහඬක් නැත: පිටු තනියම පෙරළෙනවා');
+    }
+    // a book that is at its end starts again from the cover
+    if (pages[current] && (pages[current].type === 'back' || pages[current].type === 'blank')) { flip.turnToPage(0); onFlip(0); }
+    readPage();
+  }
+
+  function stopAuto() {
+    auto = false; autoRun++;
+    clearTimeout(autoTimer);
+    if (hasSpeech) speechSynthesis.cancel();
+    lightUp(null);
+    const b = $('#read-btn'); if (b) { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); }
+  }
 
   /* =========================================================
      Parents' corner (press and hold, so little hands don't open it)
@@ -511,13 +605,14 @@
     $('#back-btn').innerHTML = ICON.back + '<span>පොත් රාක්කයට</span>';
     $('#prev-btn').innerHTML = ICON.prev;
     $('#next-btn').innerHTML = ICON.next;
-    $('#listen-btn').innerHTML = ICON.listen;
+    $('#read-btn').innerHTML = ICON.read + ICON.pause;
     $('#parents-btn').insertAdjacentHTML('afterbegin', ICON.gear);
 
     $('#back-btn').addEventListener('click', () => { sound.pop(); goShelf(); });
     $('#prev-btn').addEventListener('click', () => flip && flip.flipPrev('top'));
     $('#next-btn').addEventListener('click', () => flip && flip.flipNext('top'));
-    $('#listen-btn').addEventListener('click', speak);
+    $('#read-btn').addEventListener('click', () => { sound.pop(); if (auto) stopAuto(); else startAuto(); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && auto) stopAuto(); });
     $('#sound-btn').addEventListener('click', () => { settings.sound = !settings.sound; saveSettings(); if (settings.sound) sound.pop(); toast(settings.sound ? 'ශබ්ද ඇත' : 'ශබ්ද නැත'); });
     document.querySelectorAll('.night-btn').forEach((b) => b.addEventListener('click', () => {
       settings.night = isNight() ? 'off' : 'on';
@@ -545,7 +640,7 @@
       }, 220);
     });
 
-    if ('speechSynthesis' in window) { findVoice(); speechSynthesis.onvoiceschanged = findVoice; }
+    if (hasSpeech) { findVoice(); speechSynthesis.addEventListener('voiceschanged', findVoice); }
     setupParents();
     applySettings();
     setInterval(applySettings, 5 * 60 * 1000); // auto night mode switches on at 7 pm
