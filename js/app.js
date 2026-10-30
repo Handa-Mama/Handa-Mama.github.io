@@ -220,7 +220,7 @@
   function fitText(pageEls, pageW, pageH, wide) {
     const probe = document.createElement('div');
     probe.className = 'page story';
-    probe.style.cssText = `position:absolute;left:-9999px;top:0;width:${pageW}px;height:${pageH}px;visibility:hidden`;
+    probe.style.cssText = `position:absolute;left:-9999px;top:0;width:${pageW}px;height:${pageH - 2}px;visibility:hidden`; // 2px spare for rounding
     document.body.appendChild(probe);
     const base = parseFloat(getComputedStyle(html).getPropertyValue('--text-size')) || 23;
     const colW = wide ? pageW * 0.5 : pageW;
@@ -237,7 +237,7 @@
       const side = probe.querySelector('.side');
       // first the words get a little smaller, then the picture gives up some room, and only then
       // do the words shrink further (tiny phones), so every line always fits on the page
-      const fits = () => inner.scrollHeight <= inner.clientHeight + 1 && (!wide || side.scrollHeight <= side.clientHeight + 1);
+      const fits = () => inner.scrollHeight <= inner.clientHeight && (!wide || side.scrollHeight <= side.clientHeight);
       let fs = max;
       let artMin = 34;
       const prop = wide ? '--art-w' : '--art-min'; // wide pages: the picture gives up width instead of height
