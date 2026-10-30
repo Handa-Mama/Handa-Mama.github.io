@@ -4,7 +4,9 @@
 
 - 22 classic tales on a wooden bookshelf of illustrated books, filtered by age (3–6, 5–8)
 - Books open from a hard cover, and pages turn like paper: drag a corner, swipe, tap, or use the arrow buttons or keys
-- Two-page spread on tablets and computers, one big page on phones
+- Two-page spread on computers and tablets held sideways, one big page on phones, and picture-beside-words pages on phones turned sideways
+- Text is sized to fit every page on every screen, from 320px phones to big tablets, so no line is ever cut off
+- "Continue reading" card on the shelf, and a "next story" button on the goodnight page
 - Rich painted illustrations on every page (made in Canva, served from the Cloudinary CDN), with a slow gentle drift when moving pictures are on
 - A lesson page and a goodnight page at the end of every story
 - Night mode (switches on automatically after 7 pm), soft page-turn sounds, remembers the last page

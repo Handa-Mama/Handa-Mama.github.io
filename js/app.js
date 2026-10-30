@@ -77,8 +77,35 @@
      ========================================================= */
   const ageOk = (b) => ageFilter === 'all' || b.ages === ageFilter;
 
+  let shelfY = 0; // where the shelf was scrolled to when a book was opened
+
+  function showBook(id) {
+    shelfY = window.scrollY;
+    // remember that the book was opened from the shelf: the back button then simply goes back
+    history.pushState({ fromShelf: true }, '', '#book-' + id);
+    route();
+  }
+
+  // the book the child was in the middle of, so bedtime can carry on where it stopped
+  function renderContinue() {
+    const box = $('#continue');
+    const b = BOOKS.find((x) => x.id === store.get('last', ''));
+    const p = b ? progress[b.id] : 0;
+    if (!b || !(p > 1)) { box.hidden = true; box.innerHTML = ''; return; }
+    const n = Math.min(Math.max(p - 1, 1), b.pages.length);
+    box.hidden = false;
+    box.style.setProperty('--c', b.color);
+    box.innerHTML = `<button type="button" class="continue-card" aria-label="දිගටම කියවමු: ${esc(b.title)}, පිටුව ${n} / ${b.pages.length}">
+        <span class="thumb">${S.render(b.cover)}</span>
+        <span class="words"><small>කියවමින් සිටි කතාව</small><b>${esc(b.title)}</b><span class="bar"><i style="width:${Math.round((n / b.pages.length) * 100)}%"></i></span></span>
+        <span class="go">දිගටම<br>කියවමු ➜</span>
+      </button>`;
+    box.firstElementChild.addEventListener('click', () => { sound.pop(); showBook(b.id); });
+  }
+
   function renderShelf() {
-    const shelf = $('#shelf');
+    renderContinue();
+    const shelf = $('#books');
     shelf.innerHTML = '';
     BOOKS.filter(ageOk).forEach((b) => {
       const p = progress[b.id];
@@ -97,7 +124,7 @@
       card.addEventListener('click', () => {
         card.classList.add('opening');
         sound.pop();
-        setTimeout(() => { location.hash = '#book-' + b.id; }, 380);
+        setTimeout(() => showBook(b.id), 380);
       });
       shelf.appendChild(card);
     });
@@ -114,12 +141,12 @@
   let current = 0;
   const RATIO = 440 / 600; // page width / height
 
-  function buildPages(b) {
+  function buildPages(b, spread) {
     const list = [{ type: 'cover' }, { type: 'title' }];
     b.pages.forEach((p, i) => list.push({ type: 'story', p, n: i + 1 }));
     if (b.moral) list.push({ type: 'lesson' });
     list.push({ type: 'goodnight' });
-    if ((list.length + 1) % 2 === 1) list.push({ type: 'blank' }); // the back cover must land on a left page
+    if (spread && (list.length + 1) % 2 === 1) list.push({ type: 'blank' }); // on a spread the back cover must land on a left page
     list.push({ type: 'back' });
     return list;
   }
@@ -138,6 +165,13 @@
     return cap + body;
   }
 
+  function nextBook() {
+    const list = BOOKS.filter(ageOk);
+    if (list.length < 2) return null;
+    const i = list.findIndex((x) => x.id === book.id);
+    return list[(i + 1) % list.length];
+  }
+
   function hasTap(svg) { return /data-tap="/.test(svg); }
   const hint = `<span class="tappable-hint" aria-hidden="true">${ICON.hand}</span>`;
 
@@ -145,25 +179,27 @@
     const b = book;
     switch (d.type) {
       case 'cover': {
-        return `<div class="cover-inner"><div class="cover-art">${S.render(b.cover)}</div>
+        return `<div class="cover-inner"><div class="cover-art">${S.render(b.cover)}</div><div class="side">
           <h2>${esc(b.title)}</h2>${b.subtitle ? `<h3>${esc(b.subtitle)}</h3>` : ''}
           <div class="by">${logo()}<span>හඳ මාමා කතන්දර</span></div>
-          <div class="tap-open">පොත අරින්න ➜</div></div>`;
+          <div class="tap-open">පොත අරින්න ➜</div></div></div>`;
       }
       case 'title':
-        return `<div class="page-inner"><div class="art">${S.render('night-sky')}</div>
+        return `<div class="page-inner"><div class="art">${S.render('night-sky')}</div><div class="side">
           <h2>${esc(b.title)}</h2>${b.subtitle ? `<h3>${esc(b.subtitle)}</h3>` : ''}
-          <div class="orn"></div><div class="small">හඳ මාමා කියන නිදි කතා · වයස ${b.ages.replace('-', '–')}</div></div>`;
+          <div class="orn"></div><div class="small">හඳ මාමා කියන නිදි කතා · වයස ${b.ages.replace('-', '–')}</div></div></div>`;
       case 'story': {
         const svg = S.render(d.p.scene);
         const paras = d.p.paras.map((t, k) => `<p>${storyHTML(t, d.p.dropCap && k === 0)}</p>`).join('');
-        return `<div class="page-inner"><div class="art">${svg}${hasTap(svg) ? hint : ''}</div><div class="text">${paras}</div></div><span class="num">${d.n}</span>`;
+        return `<div class="page-inner"><div class="art">${svg}${hasTap(svg) ? hint : ''}</div><div class="side"><div class="text">${paras}</div></div></div><span class="num">${d.n}</span>`;
       }
       case 'lesson':
-        return `<div class="page-inner"><div class="label">✦ පාඩම ✦</div><div class="art">${S.render('lesson')}</div><div class="text"><p>${storyHTML(b.moral)}</p></div></div>`;
-      case 'goodnight':
-        return `<div class="page-inner"><div class="art">${S.render('goodnight', b.id)}</div><div class="text"><p>${esc(b.goodnight || 'සුබ රාත්‍රියක්!')}</p></div>
-          <div class="end-actions"><button class="again" data-act="again">නැවත කියවමු</button><button class="home" data-act="home">පොත් රාක්කයට</button></div></div>`;
+        return `<div class="page-inner"><div class="art">${S.render('lesson')}</div><div class="side"><div class="label">✦ පාඩම ✦</div><div class="text"><p>${storyHTML(b.moral)}</p></div></div></div>`;
+      case 'goodnight': {
+        const nb = nextBook();
+        return `<div class="page-inner"><div class="art">${S.render('goodnight', b.id)}</div><div class="side"><div class="text"><p>${esc(b.goodnight || 'සුබ රාත්‍රියක්!')}</p></div>
+          <div class="end-actions">${nb ? `<button class="next" data-act="next" aria-label="ඊළඟ කතාව: ${esc(nb.title)}">ඊළඟ කතාව ➜</button>` : ''}<button class="again" data-act="again">නැවත කියවමු</button><button class="home" data-act="home">පොත් රාක්කයට</button></div></div></div>`;
+      }
       case 'blank':
         return `<div class="page-inner">${logo()}</div>`;
       case 'back':
@@ -180,14 +216,16 @@
     return el;
   }
 
-  // keep pictures big: shrink the text a little on pages with many words
-  function fitText(pageEls, pageW, pageH) {
+  // biggest text that still fits: keep pictures large and never cut a line off
+  function fitText(pageEls, pageW, pageH, wide) {
     const probe = document.createElement('div');
     probe.className = 'page story';
     probe.style.cssText = `position:absolute;left:-9999px;top:0;width:${pageW}px;height:${pageH}px;visibility:hidden`;
     document.body.appendChild(probe);
     const base = parseFloat(getComputedStyle(html).getPropertyValue('--text-size')) || 23;
-    const max = Math.max(15, Math.min(base, pageW / 17));
+    const colW = wide ? pageW * 0.5 : pageW;
+    // big single pages (tablets) get bigger letters, like a big picture book
+    const max = Math.max(15, Math.min(base * Math.max(1, Math.min(1.35, colW / 470)), colW / 17));
     pageEls.forEach((el) => {
       const text = el.querySelector('.text');
       if (!text || el.classList.contains('cover') || el.classList.contains('back')) return;
@@ -195,11 +233,24 @@
       probe.innerHTML = el.innerHTML.replace(/<img [^>]*>/g, '<i class="scene"></i>'); // measuring only: don't start picture downloads
       const pt = probe.querySelector('.text');
       const art = probe.querySelector('.art');
-      const extra = probe.querySelector('.end-actions, .label');
+      const inner = probe.querySelector('.page-inner');
+      const side = probe.querySelector('.side');
+      // first the words get a little smaller, then the picture gives up some room, and only then
+      // do the words shrink further (tiny phones), so every line always fits on the page
+      const fits = () => inner.scrollHeight <= inner.clientHeight + 1 && (!wide || side.scrollHeight <= side.clientHeight + 1);
       let fs = max;
-      pt.style.setProperty('--fs', fs + 'px');
-      const minArt = pageH * (extra ? 0.3 : 0.38);
-      while (fs > 14 && art && art.offsetHeight < minArt) { fs -= 1; pt.style.setProperty('--fs', fs + 'px'); }
+      let artMin = 34;
+      const prop = wide ? '--art-w' : '--art-min'; // wide pages: the picture gives up width instead of height
+      const set = () => { pt.style.setProperty('--fs', fs + 'px'); inner.style.setProperty(prop, artMin + '%'); };
+      set();
+      for (const [am, floor] of wide ? [[46, 15], [40, 14], [34, 12]] : [[34, 16], [26, 15], [18, 12]]) {
+        artMin = am;
+        fs = max; // a smaller picture leaves room for bigger words again
+        set();
+        while (fs > floor && !fits()) { fs -= 0.5; set(); }
+        if (fits()) break;
+      }
+      if (art) el.querySelector('.page-inner').style.setProperty(prop, artMin + '%');
       text.style.setProperty('--fs', fs + 'px');
     });
     probe.remove();
@@ -209,18 +260,28 @@
     const st = $('#stage');
     const r = st.getBoundingClientRect();
     const w = r.width - 16, h = r.height - 18;
+    // short and wide (a phone on its side): one wide page, picture beside the words
+    if (h < 480 && w / h > 1.6) {
+      const pageH = Math.floor(h);
+      return { spread: false, wide: true, pageW: Math.floor(Math.min(w, pageH * 2.1)), pageH };
+    }
     const spread = w / h > 1.05 && w >= 520;
     // pages take the shape of the screen, within book-like limits
     const ratio = Math.max(spread ? 0.62 : 0.54, Math.min(RATIO, (spread ? w / 2 : w) / h));
     let pageW = spread ? Math.min(w / 2, h * ratio) : Math.min(w, h * ratio);
     pageW = Math.floor(pageW);
-    return { spread, pageW, pageH: Math.floor(pageW / ratio) };
+    return { spread, wide: false, pageW, pageH: Math.floor(pageW / ratio) };
   }
 
   function layoutBook(startAt) {
     const holder = $('#book-holder');
-    const { spread, pageW, pageH } = stageSize();
-    layoutKey = `${spread}:${pageW}:${pageH}`;
+    const { spread, wide, pageW, pageH } = stageSize();
+    layoutKey = `${spread}:${wide}:${pageW}:${pageH}`;
+    // the filler page only exists on two-page spreads: keep the reader on the same page when it comes or goes
+    const was = pages[startAt];
+    pages = buildPages(book, spread);
+    if (was) { const k = pages.findIndex((d) => d.type === was.type && d.n === was.n); startAt = k >= 0 ? k : Math.min(startAt, pages.length - 1); }
+    html.classList.toggle('wide-book', wide);
     if (flip) { try { flip.destroy(); } catch (e) { /* ignore */ } flip = null; }
     holder.innerHTML = '';
     const el = document.createElement('div');
@@ -231,7 +292,7 @@
     holder.style.setProperty('--c', book.color);
 
     const pageEls = pages.map(makePage);
-    fitText(pageEls, pageW, pageH);
+    fitText(pageEls, pageW, pageH, wide);
     pageEls.forEach((p) => el.appendChild(p));
     wirePages(pageEls);
 
@@ -271,6 +332,7 @@
         const a = e.target.closest('[data-act]');
         if (a && a.dataset.act === 'again') { sound.pop(); flip.turnToPage(0); onFlip(0); }
         if (a && a.dataset.act === 'home') { sound.pop(); goShelf(); }
+        if (a && a.dataset.act === 'next') { sound.pop(); goNextBook(); }
       });
     });
   }
@@ -313,13 +375,19 @@
     if (!b) { goShelf(); return; }
     book = b;
     pages = buildPages(b);
+    store.set('last', b.id);
     $('#shelf-view').hidden = true;
     $('#reader-view').hidden = false;
     $('#reader-title').textContent = b.title;
     S.preload([[b.cover], ['night-sky'], ...b.pages.map((p) => [p.scene]), ['lesson'], ['goodnight', b.id]]);
     document.title = `${b.title} · හඳ මාමා කතන්දර`;
     const start = progress[b.id] || 0;
-    requestAnimationFrame(() => layoutBook(start));
+    // measure the pages only once the story fonts are in, or the words won't fit the way they were measured
+    const go = () => { if (book === b) requestAnimationFrame(() => layoutBook(start)); };
+    if (document.fonts && document.fonts.load) {
+      Promise.all(['400 20px "Noto Serif Sinhala"', '600 20px "Noto Serif Sinhala"', '800 20px "Gemunu Libre"', '700 20px "Gemunu Libre"']
+        .map((f) => document.fonts.load(f, 'අආ, .!?“”–1'))).then(go, go); // Sinhala letters and the Latin file's punctuation
+    } else go();
   }
 
   function closeBook() {
@@ -331,17 +399,30 @@
     $('#shelf-view').hidden = false;
     document.title = 'හඳ මාමා කතන්දර · Handa Mama Stories';
     book = null;
+    html.classList.remove('wide-book');
     renderShelf();
+    window.scrollTo(0, shelfY);
   }
 
   function goShelf() {
-    if (location.hash.startsWith('#book-')) location.hash = '#shelf';
-    else closeBook();
+    if (history.state && history.state.fromShelf) { history.back(); return; } // the shelf is the page before: no extra history steps
+    history.replaceState(null, '', location.pathname + location.search);
+    route();
+  }
+
+  // straight on to the next story, without piling up history steps
+  function goNextBook() {
+    const nb = nextBook();
+    if (!nb) return;
+    progress[nb.id] = 0;
+    store.set('progress', progress);
+    history.replaceState(history.state, '', '#book-' + nb.id);
+    route();
   }
 
   function route() {
     const m = location.hash.match(/^#book-([\w-]+)/);
-    if (m) openBook(m[1]);
+    if (m) { if (!book || book.id !== m[1]) openBook(m[1]); }
     else if (book) closeBook();
     else renderShelf();
   }
@@ -459,8 +540,8 @@
       clearTimeout(rt);
       rt = setTimeout(() => {
         if (!book) return;
-        const { spread, pageW, pageH } = stageSize();
-        if (`${spread}:${pageW}:${pageH}` !== layoutKey) layoutBook(flip ? flip.getCurrentPageIndex() : current);
+        const { spread, wide, pageW, pageH } = stageSize();
+        if (`${spread}:${wide}:${pageW}:${pageH}` !== layoutKey) layoutBook(flip ? flip.getCurrentPageIndex() : current);
       }, 220);
     });
 
