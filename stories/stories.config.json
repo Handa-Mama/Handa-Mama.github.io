@@ -5,35 +5,81 @@
     "ages": "3-6",
     "color": "#3B6EA8",
     "cover": "cr-pot",
-    "scenes": ["cr-drought", "cr-pot", "cr-idea", "cr-pebbles", "cr-fly"]
+    "scenes": [
+      "cr-drought",
+      "cr-pot",
+      "cr-idea",
+      "cr-pebbles",
+      "cr-fly"
+    ]
   },
   "04_nariya_saha_midi": {
     "id": "nariya-saha-midi",
     "ages": "3-6",
     "color": "#C4572E",
     "cover": "fx-grapes",
-    "scenes": ["fx-hungry", "fx-grapes", "fx-jump", "fx-tired", "fx-sour", "fx-monkey", "fx-leave"]
+    "scenes": [
+      "fx-hungry",
+      "fx-grapes",
+      "fx-jump",
+      "fx-tired",
+      "fx-sour",
+      "fx-monkey",
+      "fx-leave"
+    ]
   },
   "02_sinha_saha_meeya": {
     "id": "sinha-saha-meeya",
     "ages": "3-6",
     "color": "#C7861F",
     "cover": "lm-friends",
-    "scenes": ["lm-king", "lm-sleep", "lm-catch", "lm-release", "lm-net", "lm-rescue", "lm-thanks", "lm-friends"]
+    "scenes": [
+      "lm-king",
+      "lm-sleep",
+      "lm-catch",
+      "lm-release",
+      "lm-net",
+      "lm-rescue",
+      "lm-thanks",
+      "lm-friends"
+    ]
   },
   "03_ibba_saha_haawa": {
     "id": "ibba-saha-haawa",
     "ages": "5-8",
     "color": "#4F8A3B",
     "cover": "th-start",
-    "scenes": ["th-friends", "th-mock", "th-challenge", "th-start", "th-nap", "th-walk", "th-finish", "th-cheer", "th-sorry", "th-smile", "th-together"]
+    "scenes": [
+      "th-friends",
+      "th-mock",
+      "th-challenge",
+      "th-start",
+      "th-nap",
+      "th-walk",
+      "th-finish",
+      "th-cheer",
+      "th-sorry",
+      "th-smile",
+      "th-together"
+    ]
   },
   "06_andara_saha_raja": {
     "id": "andare-saha-rajathuma",
     "ages": "5-8",
     "color": "#6B4A9B",
     "cover": "an-court",
-    "scenes": ["an-court", "an-ask", "an-smile", "an-box", "an-open", "an-think", "an-ask2", "an-army", "an-kind", "an-kingdom"]
+    "scenes": [
+      "an-court",
+      "an-ask",
+      "an-smile",
+      "an-box",
+      "an-open",
+      "an-think",
+      "an-ask2",
+      "an-army",
+      "an-kind",
+      "an-kingdom"
+    ]
   },
   "01_mee_puncha_katha": {
     "id": "mee-puncha",
@@ -41,6 +87,231 @@
     "color": "#2F7F79",
     "cover": "mp-forest",
     "long": true,
-    "scenes": ["mp-home", "mp-ask", "mp-forest", "mp-sea", "mp-mountain", "mp-bears", "mp-evening", "mp-proud", "mp-proud", "mp-sea", "mp-sea-real", "mp-mountain", "mp-mountain-real", "mp-bears", "mp-hug", "mp-dream"]
+    "scenes": [
+      "mp-home",
+      "mp-ask",
+      "mp-forest",
+      "mp-sea",
+      "mp-mountain",
+      "mp-bears",
+      "mp-evening",
+      "mp-proud",
+      "mp-proud",
+      "mp-sea",
+      "mp-sea-real",
+      "mp-mountain",
+      "mp-mountain-real",
+      "mp-bears",
+      "mp-hug",
+      "mp-dream"
+    ]
+  },
+  "07_kumbiya_saha_palangetiya": {
+    "id": "kumbiya-palangetiya",
+    "ages": "3-6",
+    "color": "#B8862B",
+    "cover": "ag-work",
+    "scenes": [
+      "ag-summer",
+      "ag-work",
+      "ag-work",
+      "ag-winter",
+      "ag-share"
+    ]
+  },
+  "08_kotiya_awo": {
+    "id": "kotiya-awo",
+    "ages": "5-8",
+    "color": "#5E7F3A",
+    "cover": "lp-hill",
+    "scenes": [
+      "lp-hill",
+      "lp-shout",
+      "lp-shout",
+      "lp-leopard",
+      "lp-sorry"
+    ]
+  },
+  "09_ran_bittara_kikiliya": {
+    "id": "ran-bittara",
+    "ages": "3-6",
+    "color": "#C9A227",
+    "cover": "gh-egg",
+    "scenes": [
+      "gh-farm",
+      "gh-egg",
+      "gh-greed",
+      "gh-greed",
+      "gh-garden"
+    ]
+  },
+  "10_kaputa_saha_nariya": {
+    "id": "kaputa-nariya",
+    "ages": "3-6",
+    "color": "#4A5D8C",
+    "cover": "cf-flatter",
+    "scenes": [
+      "cf-kavum",
+      "cf-flatter",
+      "cf-flatter",
+      "cf-drop",
+      "cf-wiser"
+    ]
+  },
+  "11_pareviya_saha_kumbiya": {
+    "id": "pareviya-kumbiya",
+    "ages": "3-6",
+    "color": "#3F8FA6",
+    "cover": "da-friends",
+    "scenes": [
+      "da-fall",
+      "da-leaf",
+      "da-leaf",
+      "da-bite",
+      "da-friends"
+    ]
+  },
+  "12_wandura_saha_kimbula": {
+    "id": "wandura-kimbula",
+    "ages": "5-8",
+    "color": "#3E7D5A",
+    "cover": "mc-ride",
+    "scenes": [
+      "mc-friends",
+      "mc-wife",
+      "mc-ride",
+      "mc-ride",
+      "mc-safe"
+    ]
+  },
+  "13_sinhaya_saha_nuwanathi_hawa": {
+    "id": "sinha-hawa",
+    "ages": "5-8",
+    "color": "#A0522D",
+    "cover": "lh-cheer",
+    "scenes": [
+      "lh-meeting",
+      "lh-walk",
+      "lh-walk",
+      "lh-well",
+      "lh-cheer"
+    ]
+  },
+  "14_katha_kala_ibba": {
+    "id": "katha-kala-ibba",
+    "ages": "5-8",
+    "color": "#2E8B8B",
+    "cover": "tt-fly",
+    "scenes": [
+      "tt-lake",
+      "tt-dry",
+      "tt-fly",
+      "tt-fly",
+      "tt-quiet"
+    ]
+  },
+  "15_kadara_balla": {
+    "id": "kadara-balla",
+    "ages": "3-6",
+    "color": "#8B5A2B",
+    "cover": "gd-bridge",
+    "scenes": [
+      "gd-bone",
+      "gd-bridge",
+      "gd-bridge",
+      "gd-splash",
+      "gd-home"
+    ]
+  },
+  "16_gam_meeya_saha_nagara_meeya": {
+    "id": "gam-nagara-meeya",
+    "ages": "5-8",
+    "color": "#7A6A9E",
+    "cover": "tm-cat",
+    "scenes": [
+      "tm-village",
+      "tm-village",
+      "tm-feast",
+      "tm-cat",
+      "tm-home"
+    ]
+  },
+  "17_punchi_rathu_kikiliya": {
+    "id": "rathu-kikiliya",
+    "ages": "3-6",
+    "color": "#B23A2E",
+    "cover": "rh-together",
+    "scenes": [
+      "rh-ask",
+      "rh-ask",
+      "rh-work",
+      "rh-kiribath",
+      "rh-together"
+    ]
+  },
+  "18_sulanga_saha_hiru": {
+    "id": "sulanga-hiru",
+    "ages": "5-8",
+    "color": "#4F86C6",
+    "cover": "ws-sky",
+    "scenes": [
+      "ws-sky",
+      "ws-sky",
+      "ws-blow",
+      "ws-shine",
+      "ws-peace"
+    ]
+  },
+  "19_mahadanamuththa_saha_gona": {
+    "id": "mahadanamuththa",
+    "ages": "5-8",
+    "color": "#9C6B3E",
+    "cover": "md-pot",
+    "scenes": [
+      "md-pundit",
+      "md-pot",
+      "md-pot",
+      "md-girl",
+      "md-wise"
+    ]
+  },
+  "20_andare_saha_seeni": {
+    "id": "andare-seeni",
+    "ages": "5-8",
+    "color": "#C25B7A",
+    "cover": "as-jar",
+    "scenes": [
+      "as-jar",
+      "as-taste",
+      "as-taste",
+      "as-king",
+      "as-share"
+    ]
+  },
+  "21_ran_muwa": {
+    "id": "ran-muwa",
+    "ages": "5-8",
+    "color": "#D4A017",
+    "cover": "rd-deer",
+    "scenes": [
+      "rd-deer",
+      "rd-rescue",
+      "rd-rescue",
+      "rd-king",
+      "rd-peace"
+    ]
+  },
+  "22_mithuran_hathara_dena": {
+    "id": "mithuran-hathara",
+    "ages": "3-6",
+    "color": "#5B8C5A",
+    "cover": "ff-friends",
+    "scenes": [
+      "ff-friends",
+      "ff-net",
+      "ff-chew",
+      "ff-trick",
+      "ff-trick"
+    ]
   }
 }
