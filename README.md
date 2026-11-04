@@ -9,8 +9,8 @@
 - "Continue reading" card on the shelf, and a "next story" button on the goodnight page
 - Rich painted illustrations on every page (made in Canva, served from the Cloudinary CDN), with a slow gentle drift when moving pictures are on
 - A lesson page and a goodnight page at the end of every story
-- "Read to me" (▶ in a book): reads the story aloud with the device's Sinhala voice, lighting up each paragraph and turning the pages by itself; without a Sinhala voice the pages still turn at a gentle reading pace
-- Night mode (switches on automatically after 7 pm), soft page-turn sounds, remembers the last page
+- "Read to me" (▶ in a book): reads the story aloud with the device's Sinhala voice, lighting up each paragraph and turning the pages by itself. Sinhala voices: Android (Google voice data), Microsoft Edge on Windows and Mac. Elsewhere (iPhone, iPad, Safari, Chrome on a computer) the pages still turn at a gentle reading pace with the words lit up, and the parents' corner shows what this device can do
+- Night mode (switches on automatically after 7 pm), soft page-turn sounds (off until a parent turns them on), remembers the last page
 - Parents' corner (press and hold the gear for 3 seconds): text size, night mode, sounds, still pictures
 - Works offline after the first visit (PWA); no ads, no accounts, no tracking
 - Plain static files, no build step needed to run, ready for GitHub Pages

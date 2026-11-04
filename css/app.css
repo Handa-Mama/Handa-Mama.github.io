@@ -50,6 +50,11 @@ body {
   overscroll-behavior: none;
 }
 button { font: inherit; color: inherit; cursor: pointer; }
+/* quick double taps on buttons must not zoom the page, and long presses must not select text */
+button, .chip, .book-card { touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+/* inside a book: no text selection or "save picture" menu when a small hand rests on a page */
+.reader-view { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.shelf img, .continue img { -webkit-touch-callout: none; -webkit-user-drag: none; }
 [hidden] { display: none !important; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 :focus-visible { outline: 3px solid var(--marigold); outline-offset: 3px; border-radius: 12px; }
@@ -74,10 +79,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .icon-btn:hover { background: rgba(255,255,255,.18); }
 .icon-btn:active { transform: scale(.94); }
-.icon-btn svg { width: 30px; height: 30px; }
-.icon-btn .ring { position: absolute; inset: -3px; width: auto; height: auto; transform: rotate(-90deg); pointer-events: none; }
-.icon-btn .ring circle { fill: none; stroke: var(--marigold); stroke-width: 4; stroke-dasharray: 220; stroke-dashoffset: 220; stroke-linecap: round; }
-.icon-btn.holding .ring circle { transition: stroke-dashoffset 2.6s linear; stroke-dashoffset: 0; }
+.icon-btn svg:not(.ring) { width: 30px; height: 30px; }
+/* parents' corner: a ring fills in around the button while it is held */
+#parents-btn { touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.icon-btn .ring { position: absolute; left: -4px; top: -4px; width: calc(100% + 8px); height: calc(100% + 8px); transform: rotate(-90deg); pointer-events: none; overflow: visible; }
+.icon-btn .ring circle { fill: none; stroke: var(--marigold); stroke-width: 4; stroke-dasharray: 208; stroke-dashoffset: 208; stroke-linecap: round; opacity: 0; transition: opacity .15s; }
+.icon-btn.holding .ring circle { transition: stroke-dashoffset 2.7s linear, opacity .15s; stroke-dashoffset: 0; opacity: 1; }
 
 .filters { display: flex; gap: 10px; flex-wrap: wrap; margin: 6px 0 22px; }
 .chip {
@@ -309,7 +316,9 @@ dialog.parents::backdrop { background: rgba(10,14,32,.7); backdrop-filter: blur(
 .seg { display: flex; gap: 8px; flex-wrap: wrap; }
 .seg button { min-height: 48px; padding: 0 18px; border-radius: 24px; border: 2px solid rgba(58,46,38,.18); background: #fff; font-size: 17px; font-weight: 700; color: var(--ink); }
 .seg button[aria-pressed="true"] { background: #2B3A67; border-color: #2B3A67; color: #FFF6DE; }
-.parents p.note { font-family: var(--story); font-size: 15px; line-height: 1.7; color: var(--ink-soft); margin: 8px 0 0; }
+.parents p.note { font-family: var(--story); font-size: 15px; line-height: 1.7; color: var(--ink-soft); margin: 8px 0 0; text-align: left; hyphens: none; }
+.parents .voice-note { background: rgba(242,169,59,.14); border-radius: 12px; padding: 10px 14px; color: var(--ink); }
+.parents .voice-note.ok { background: rgba(80,160,100,.16); }
 .parents .danger { background: #fff; border: 2px solid var(--rose); color: var(--rose); min-height: 48px; padding: 0 18px; border-radius: 24px; font-weight: 700; }
 
 /* gentle toast */
@@ -473,7 +482,7 @@ html.still .scene-photo { animation: none !important; }
   .brand h1 { font-size: clamp(22px, 7vw, 30px); white-space: nowrap; }
   .brand p { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .top .icon-btn { --tap: 50px; }
-  .top .icon-btn svg { width: 25px; height: 25px; }
+  .top .icon-btn svg:not(.ring) { width: 25px; height: 25px; }
   .reader-bar .icon-btn { width: 48px; height: 48px; }
 }
 @media (max-width: 360px) {
