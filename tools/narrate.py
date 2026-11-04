@@ -118,4 +118,19 @@ async def main():
     print('done:', len(clips), 'clips')
 
 
+async def samples():
+    """tools/samples.txt: 'name | text' lines recorded to samples/<name>.mp3, to compare spellings by ear"""
+    path = os.path.join(ROOT, 'tools', 'samples.txt')
+    if not os.path.exists(path):
+        return
+    os.makedirs(os.path.join(ROOT, 'samples'), exist_ok=True)
+    for line in open(path, encoding='utf-8'):
+        line = line.split('#', 1)[0].strip()
+        if '|' in line:
+            name, text = (x.strip() for x in line.split('|', 1))
+            await record(text, os.path.join(ROOT, 'samples', name + '.mp3'))
+            print('  sample', name, text)
+
+
 asyncio.run(main())
+asyncio.run(samples())

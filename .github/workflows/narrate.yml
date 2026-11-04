@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: ['claude/**']
-    paths: ['data/stories.js', 'tools/narrate.py', 'tools/pronunciation.txt', '.github/workflows/narrate.yml']
+    paths: ['data/stories.js', 'tools/narrate.py', 'tools/pronunciation.txt', 'tools/samples.txt', '.github/workflows/narrate.yml']
 permissions:
   contents: write
 concurrency:
@@ -23,7 +23,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add audio data/narration.js
+          git add audio data/narration.js $(test -d samples && echo samples)
           if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
           git commit -m "Record narration for read to me"
           git pull --rebase origin "${GITHUB_REF_NAME}"

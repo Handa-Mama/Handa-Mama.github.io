@@ -1,0 +1,6 @@
+# pronunciation try-outs: name | text  (recorded to samples/<name>.mp3)
+1-as-written | ඔහුට මැටි භාජනයක් හමු වුණා.
+2-soft-b | ඔහුට මැටි බාජනයක් හමු වුණා.
+3-short-a | ඔහුට මටි භජනයක් හමු වුණා.
+4-latin | Ohuta mati bhajanayak hamu wuna.
+5-short-a-soft-b | ඔහුට මටි බජනයක් හමු වුණා.
