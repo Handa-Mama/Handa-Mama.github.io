@@ -445,7 +445,7 @@
   let siVoice = null;
   let voiceBroken = false; // a voice that is listed but says nothing (e.g. its voice data was never downloaded)
   const keep = [];        // Chrome forgets the callbacks of utterances that are garbage collected
-  const hasSpeech = 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
+  const hasSpeech = !!window.speechSynthesis && typeof SpeechSynthesisUtterance !== 'undefined';
   // which device this is, for the right "how to get a Sinhala voice" tip
   const PLATFORM = (() => {
     const ua = navigator.userAgent;
@@ -486,20 +486,73 @@
   };
   function renderVoiceNote() {
     const n = $('#voice-note'); if (!n) return;
-    n.textContent = siVoice
+    n.textContent = NARRATION.size
+      ? '✓ Stories are read aloud with a recorded Sinhala voice on every device. A story read once with the internet on can be read aloud again offline.'
+      : siVoice
       ? '✓ This device can read aloud in Sinhala (' + siVoice.name + ').'
       : 'This device has no Sinhala voice, so the pages turn by themselves with the words lit up. ' + VOICE_TIP[PLATFORM];
-    n.classList.toggle('ok', !!siVoice);
+    n.classList.toggle('ok', !!(siVoice || NARRATION.size));
   }
 
   // what to read on page k: one part per paragraph, each with the element to light up
   function readingParts(k) {
     const d = pages[k]; const el = pageNodes[k];
     if (!d || !el) return [];
-    const part = (sel) => [...el.querySelectorAll(sel)].map((e) => ({ el: e, text: e.textContent.replace(/\s+/g, ' ').trim() })).filter((x) => x.text);
-    if (d.type === 'cover') return part('h2, h3');
-    if (d.type === 'story' || d.type === 'lesson' || d.type === 'goodnight') return part('.text p');
+    // src: the story's own text, which names its recorded clip
+    const part = (sel, src) => [...el.querySelectorAll(sel)].map((e, i) => ({ el: e, text: norm(e.textContent), src: norm(src[i] || '') })).filter((x) => x.text);
+    if (d.type === 'cover') return part('h2, h3', [book.title, book.subtitle]);
+    if (d.type === 'story') return part('.text p', d.p.paras);
+    if (d.type === 'lesson') return part('.text p', [book.moral]);
+    if (d.type === 'goodnight') return part('.text p', [book.goodnight || 'සුබ රාත්‍රියක්!']);
     return []; // title, blank and back pages: a short pause
+  }
+  const norm = (t) => String(t || '').replace(/\s+/g, ' ').trim();
+
+  /* recorded narration (tools/narrate.py): one clip per paragraph, the same voice on every device.
+     Clips are fetched as files (so the offline cache can keep them) and played through one audio
+     element, which a tap on ▶ unlocks for iPhones. */
+  const NARRATION = new Set((window.HM_NARRATION && window.HM_NARRATION.clips) || []);
+  const player = typeof Audio === 'function' ? new Audio() : null;
+  const clipUrls = new Map();
+  const SILENCE = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+  function hashText(t) {
+    let h = 0x811c9dc5;
+    for (const b of new TextEncoder().encode(t)) { h ^= b; h = Math.imul(h, 0x01000193) >>> 0; }
+    return ('0000000' + h.toString(16)).slice(-8);
+  }
+  const clipFor = (src) => {
+    if (!player || !src || !NARRATION.size || typeof TextEncoder !== 'function') return null;
+    const h = hashText(src);
+    return NARRATION.has(h) ? 'audio/' + h + '.mp3' : null;
+  };
+  function loadClip(url) {
+    if (!clipUrls.has(url)) {
+      const p = fetch(url).then((r) => { if (!r.ok) throw new Error(r.status); return r.blob(); }).then((b) => URL.createObjectURL(b));
+      p.catch(() => clipUrls.delete(url)); // try again next time
+      clipUrls.set(url, p);
+    }
+    return clipUrls.get(url);
+  }
+  // fetch the clips of the next pages while this one is being read
+  function preloadClips(from) {
+    for (let k = from; k < Math.min(pages.length, from + 3); k++) readingParts(k).forEach((p) => { const c = clipFor(p.src); if (c) loadClip(c); });
+  }
+  function hasNarration() { return !!clipFor(norm(book && book.title)); }
+  // play one clip; failed() when it can't be played (offline and never saved, blocked, ...)
+  function playClip(url, run, done, failed) {
+    let over = false;
+    const end = (ok) => { if (over || run !== autoRun) return; over = true; player.onended = player.onerror = player.onloadedmetadata = null; (ok ? done : failed)(); };
+    loadClip(url).then((src) => {
+      if (run !== autoRun) return;
+      player.onended = () => end(true);
+      player.onerror = () => end(false);
+      player.onloadedmetadata = () => { if (isFinite(player.duration)) wait(player.duration / player.playbackRate * 1000 + 4000, run, () => end(true)); };
+      player.src = src;
+      player.playbackRate = slow() ? 0.85 : 1;
+      const p = player.play();
+      if (p && p.catch) p.catch(() => end(false));
+    }, () => end(false));
+    wait(20000, run, () => end(false)); // never loaded
   }
   const sentences = (t) => t.match(/[^.!?…]+(?:[.!?…]+[”"']?|$)\s*/g) || [t];
   const words = (t) => t.split(/\s+/).filter(Boolean).length;
@@ -558,13 +611,19 @@
     const parts = idx.flatMap(readingParts);
     const atEnd = idx.some((k) => pages[k] && (pages[k].type === 'goodnight' || pages[k].type === 'back' || pages[k].type === 'blank'));
     let n = 0;
+    preloadClips(current);
     const next = () => {
       if (run !== autoRun) return;
       if (n < parts.length) {
         const p = parts[n++];
         lightUp(p.el);
-        if (siVoice) say(p.text, run, () => wait(350, run, next));
-        else wait(Math.max(2200, words(p.text) * (slow() ? 900 : 650)), run, next); // a child's reading pace
+        const after = () => wait(350, run, next);
+        const device = () => {
+          if (siVoice) say(p.text, run, after);
+          else wait(Math.max(2200, words(p.text) * (slow() ? 900 : 650)), run, next); // a child's reading pace
+        };
+        const clip = clipFor(p.src);
+        if (clip) playClip(clip, run, after, device); else device();
         return;
       }
       lightUp(null);
@@ -580,12 +639,19 @@
     auto = true; const run = ++autoRun;
     $('#read-btn').classList.add('on');
     $('#read-btn').setAttribute('aria-pressed', 'true');
+    if (hasNarration()) {
+      // a silent sound inside the tap: iPhones only let this audio element play after one
+      try { player.src = SILENCE; const p = player.play(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* ignore */ }
+      findVoice(); // a back-up if a clip can't be played
+      beginAuto();
+      return;
+    }
     // a short silent utterance inside the tap: iPhones and Safari only speak after one
     if (hasSpeech) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) { /* ignore */ } }
     voicesReady(() => { if (run === autoRun) beginAuto(); });
   }
   function beginAuto() {
-    if (!siVoice && !voiceTipShown) {
+    if (!siVoice && !voiceTipShown && !hasNarration()) {
       voiceTipShown = true;
       toast('සිංහල කටහඬක් නැත: පිටු තනියම පෙරළෙනවා · No Sinhala voice: pages turn by themselves', 4200);
     }
@@ -598,6 +664,7 @@
     auto = false; autoRun++;
     clearTimeout(autoTimer);
     if (hasSpeech) speechSynthesis.cancel();
+    if (player) { player.onended = player.onerror = player.onloadedmetadata = null; try { player.pause(); } catch (e) { /* ignore */ } }
     lightUp(null);
     const b = $('#read-btn'); if (b) { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); }
   }

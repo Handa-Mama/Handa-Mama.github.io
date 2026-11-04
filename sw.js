@@ -4,10 +4,12 @@
  * at bedtime with no signal. Site files are always fetched fresh when online
  * (the saved copy is only used offline), so phones never get stuck on an old version.
  */
-const VERSION = 'handa-mama-v8';
+const VERSION = 'handa-mama-v9';
 // painted pictures come from the Cloudinary CDN; they are kept in their own cache so new site versions don't download them again
 const IMAGES = 'handa-mama-images-v1';
 const CDN_HOST = 'res.cloudinary.com';
+// recorded narration: each clip is named after its text, so a saved clip never goes stale
+const AUDIO = 'handa-mama-audio-v1';
 const CORE = [
   './',
   'index.html',
@@ -15,6 +17,7 @@ const CORE = [
   'css/paper.png',
   'js/vendor/page-flip.browser.js',
   'data/stories.js',
+  'data/narration.js',
   'js/art.js',
   'js/scenes.js',
   'js/sound.js',
@@ -44,7 +47,7 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== VERSION && k !== IMAGES).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k !== VERSION && k !== IMAGES && k !== AUDIO).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -64,6 +67,13 @@ self.addEventListener('fetch', (e) => {
     return;
   }
   if (url.origin !== self.location.origin) return;
+  if (/\/audio\/[0-9a-f]{8}\.mp3$/.test(url.pathname)) {
+    e.respondWith(caches.open(AUDIO).then((c) => c.match(req).then((hit) => hit || fetch(req).then((res) => {
+      if (res.ok && res.status === 200) c.put(req, res.clone()).catch(() => { /* storage full: still play it */ });
+      return res;
+    }))));
+    return;
+  }
   // site files: network first (always the newest version), saved copy when offline
   e.respondWith(
     fetch(req.mode === 'navigate' ? new Request(req.url, { cache: 'no-cache', credentials: 'same-origin' }) : new Request(req, { cache: 'no-cache' })).then((res) => {
