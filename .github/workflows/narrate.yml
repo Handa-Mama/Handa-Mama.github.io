@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: ['claude/**']
-    paths: ['data/stories.js', 'tools/narrate.py', '.github/workflows/narrate.yml']
+    paths: ['data/stories.js', 'tools/narrate.py', 'tools/pronunciation.txt', '.github/workflows/narrate.yml']
 permissions:
   contents: write
 concurrency:

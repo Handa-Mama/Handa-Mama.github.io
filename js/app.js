@@ -511,7 +511,7 @@
   /* recorded narration (tools/narrate.py): one clip per paragraph, the same voice on every device.
      Clips are fetched as files (so the offline cache can keep them) and played through one audio
      element, which a tap on ▶ unlocks for iPhones. */
-  const NARRATION = new Set((window.HM_NARRATION && window.HM_NARRATION.clips) || []);
+  const NARRATION = new Map(Object.entries((window.HM_NARRATION && window.HM_NARRATION.clips) || {}));
   const player = typeof Audio === 'function' ? new Audio() : null;
   const clipUrls = new Map();
   const SILENCE = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
@@ -523,7 +523,7 @@
   const clipFor = (src) => {
     if (!player || !src || !NARRATION.size || typeof TextEncoder !== 'function') return null;
     const h = hashText(src);
-    return NARRATION.has(h) ? 'audio/' + h + '.mp3' : null;
+    return NARRATION.has(h) ? 'audio/' + NARRATION.get(h) + '.mp3' : null;
   };
   function loadClip(url) {
     if (!clipUrls.has(url)) {
