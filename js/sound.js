@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   let ctx = null;
-  let enabled = true;
+  let enabled = false; // the app turns sounds on only if a parent chose them
   let noise = null;
 
   function ac() {

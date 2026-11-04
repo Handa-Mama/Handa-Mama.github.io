@@ -15,7 +15,9 @@
     get(k, d) { try { const v = localStorage.getItem('hm:' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem('hm:' + k, JSON.stringify(v)); } catch (e) { /* ignore */ } },
   };
-  const settings = Object.assign({ text: 'm', night: 'auto', sound: true, motion: true, readRate: 'normal' }, store.get('settings', {}));
+  const settings = Object.assign({ text: 'm', night: 'auto', sound: false, motion: true, readRate: 'normal' }, store.get('settings', {}));
+  // page and tap sounds are off unless a parent turns them on (older versions saved them on for everyone)
+  if (!settings.v) { settings.sound = false; settings.v = 2; store.set('settings', settings); }
   const progress = store.get('progress', {});
   let ageFilter = store.get('age', 'all');
 
@@ -68,9 +70,9 @@
 
   /* ---------- toast ---------- */
   let toastTimer;
-  function toast(msg) {
+  function toast(msg, ms) {
     const t = $('#toast'); t.textContent = msg; t.classList.add('show');
-    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms || 2200);
   }
 
   /* =========================================================
@@ -239,22 +241,22 @@
       const art = probe.querySelector('.art');
       const inner = probe.querySelector('.page-inner');
       const side = probe.querySelector('.side');
-      // first the words get a little smaller, then the picture gives up some room, and only then
+      // keep the whole picture (always its own 4:3 shape) and the words as big as the page allows:
+      // the words get a little smaller first, then the whole picture gets smaller, and only then
       // do the words shrink further (tiny phones), so every line always fits on the page
       const fits = () => inner.scrollHeight <= inner.clientHeight && (!wide || side.scrollHeight <= side.clientHeight);
       let fs = max;
-      let artMin = 34;
-      const prop = wide ? '--art-w' : '--art-min'; // wide pages: the picture gives up width instead of height
-      const set = () => { pt.style.setProperty('--fs', fs + 'px'); inner.style.setProperty(prop, artMin + '%'); };
-      set();
-      for (const [am, floor] of wide ? [[46, 15], [40, 14], [34, 12]] : [[34, 16], [26, 15], [18, 12]]) {
-        artMin = am;
+      let artW = 100;
+      const set = () => { pt.style.setProperty('--fs', fs + 'px'); inner.style.setProperty('--art-w', artW + '%'); };
+      const steps = wide ? [[46, 15], [42, 14], [38, 13], [34, 12]] : [[100, 16], [92, 16], [84, 15], [76, 15], [68, 14], [60, 14], [52, 14], [44, 14], [44, 12]];
+      for (const [w, floor] of steps) {
+        artW = w;
         fs = max; // a smaller picture leaves room for bigger words again
         set();
         while (fs > floor && !fits()) { fs -= 0.5; set(); }
         if (fits()) break;
       }
-      if (art) el.querySelector('.page-inner').style.setProperty(prop, artMin + '%');
+      if (art) el.querySelector('.page-inner').style.setProperty('--art-w', artW + '%');
       text.style.setProperty('--fs', fs + 'px');
     });
     probe.remove();
@@ -441,12 +443,53 @@
   let autoRun = 0;        // bumps on every start/stop, so callbacks from an old run do nothing
   let autoTimer = null;
   let siVoice = null;
+  let voiceBroken = false; // a voice that is listed but says nothing (e.g. its voice data was never downloaded)
   const keep = [];        // Chrome forgets the callbacks of utterances that are garbage collected
   const hasSpeech = 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
+  // which device this is, for the right "how to get a Sinhala voice" tip
+  const PLATFORM = (() => {
+    const ua = navigator.userAgent;
+    if (/iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) return 'ios';
+    if (/Android/.test(ua)) return 'android';
+    if (/Edg\//.test(ua)) return 'edge';
+    if (/Macintosh|Mac OS X/.test(ua)) return 'mac';
+    if (/Windows/.test(ua)) return 'windows';
+    return 'other';
+  })();
+  const isSinhala = (v) => /^si(n)?([-_]|$)/i.test(v.lang || '') || /sinhala|සිංහල/i.test(v.name || '');
   function findVoice() {
     if (!hasSpeech) return;
-    const vs = speechSynthesis.getVoices();
-    siVoice = vs.find((v) => /^si([-_]|$)/i.test(v.lang) && v.localService) || vs.find((v) => /^si([-_]|$)/i.test(v.lang)) || null;
+    let vs = [];
+    try { vs = speechSynthesis.getVoices() || []; } catch (e) { /* no voices */ }
+    const si = vs.filter(isSinhala);
+    // the clearest first: Edge's natural voices, then voices on the device, then any
+    siVoice = voiceBroken ? null : si.find((v) => /natural|neural/i.test(v.name)) || si.find((v) => v.localService) || si[0] || null;
+    renderVoiceNote();
+  }
+  // wait a moment for the voice list: some browsers fill it in only after the page has loaded
+  function voicesReady(done) {
+    let vs = [];
+    try { vs = speechSynthesis.getVoices() || []; } catch (e) { /* no voices */ }
+    if (!hasSpeech || vs.length) { findVoice(); done(); return; }
+    let called = false;
+    const go = () => { if (called) return; called = true; speechSynthesis.removeEventListener('voiceschanged', go); findVoice(); done(); };
+    speechSynthesis.addEventListener('voiceschanged', go);
+    setTimeout(go, 700);
+  }
+  const VOICE_TIP = {
+    android: 'Android: Settings › Text-to-speech output › Google › Install voice data › Sinhala (සිංහල). Then open the book again.',
+    windows: 'Windows: open this page in Microsoft Edge. Edge has Sinhala voices built in.',
+    mac: 'Mac: open this page in Microsoft Edge. Edge has Sinhala voices built in (Safari and Chrome do not).',
+    edge: 'Edge has Sinhala voices: make sure this device is online the first time a story is read.',
+    ios: 'iPhone and iPad do not offer a Sinhala voice yet.',
+    other: 'This browser has no Sinhala voice. Microsoft Edge on Windows or Mac, or Chrome on Android with the Google Sinhala voice, can read aloud.',
+  };
+  function renderVoiceNote() {
+    const n = $('#voice-note'); if (!n) return;
+    n.textContent = siVoice
+      ? '✓ This device can read aloud in Sinhala (' + siVoice.name + ').'
+      : 'This device has no Sinhala voice, so the pages turn by themselves with the words lit up. ' + VOICE_TIP[PLATFORM];
+    n.classList.toggle('ok', !!siVoice);
   }
 
   // what to read on page k: one part per paragraph, each with the element to light up
@@ -482,7 +525,21 @@
       try { u.voice = siVoice; } catch (e) { /* an unusual voice object: the language below still picks it */ }
       u.lang = siVoice.lang; u.rate = slow() ? 0.72 : 0.88; u.pitch = 1.05;
       let finished = false;
-      const next = () => { if (finished) return; finished = true; const k = keep.indexOf(u); if (k >= 0) keep.splice(k, 1); one(); };
+      const began = Date.now();
+      const next = (e) => {
+        if (finished) return; finished = true;
+        const k = keep.indexOf(u); if (k >= 0) keep.splice(k, 1);
+        if (run !== autoRun) return;
+        // the voice can't actually speak: carry on silently at a reading pace, with the words lit up
+        const failed = e && e.type === 'error' && /unavailable|not-allowed|synthesis-failed/.test(e.error || '');
+        if (failed || (e && e.type === 'end' && Date.now() - began < 150 && words(t) >= 2)) {
+          voiceBroken = true; siVoice = null; renderVoiceNote();
+          const rest = list.slice(n - 1).join(' ');
+          wait(Math.max(1500, words(rest) * (slow() ? 900 : 650)), run, done);
+          return;
+        }
+        one();
+      };
       u.onend = next; u.onerror = next;
       keep.push(u);
       // some phones never report the end of a sentence: carry on after a generous guess
@@ -517,15 +574,20 @@
     next();
   }
 
+  let voiceTipShown = false;
   function startAuto() {
     if (!book) return;
-    findVoice();
-    auto = true; autoRun++;
+    auto = true; const run = ++autoRun;
     $('#read-btn').classList.add('on');
     $('#read-btn').setAttribute('aria-pressed', 'true');
-    if (!siVoice && !store.get('voiceTip')) {
-      store.set('voiceTip', 1);
-      toast('සිංහල කටහඬක් නැත: පිටු තනියම පෙරළෙනවා');
+    // a short silent utterance inside the tap: iPhones and Safari only speak after one
+    if (hasSpeech) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) { /* ignore */ } }
+    voicesReady(() => { if (run === autoRun) beginAuto(); });
+  }
+  function beginAuto() {
+    if (!siVoice && !voiceTipShown) {
+      voiceTipShown = true;
+      toast('සිංහල කටහඬක් නැත: පිටු තනියම පෙරළෙනවා · No Sinhala voice: pages turn by themselves', 4200);
     }
     // a book that is at its end starts again from the cover
     if (pages[current] && (pages[current].type === 'back' || pages[current].type === 'blank')) { flip.turnToPage(0); onFlip(0); }
@@ -550,6 +612,8 @@
     const start = (e) => {
       if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
       if (e.type === 'keydown') { e.preventDefault(); openParents(); return; }
+      if (e.button > 0 || timer) return;
+      try { btn.setPointerCapture(e.pointerId); } catch (err) { /* keeps the hold going if the finger drifts a little */ }
       btn.classList.add('holding');
       timer = setTimeout(() => { btn.classList.remove('holding'); openParents(); }, 2700);
     };
@@ -640,7 +704,7 @@
       }, 220);
     });
 
-    if (hasSpeech) { findVoice(); speechSynthesis.addEventListener('voiceschanged', findVoice); }
+    if (hasSpeech) { findVoice(); speechSynthesis.addEventListener('voiceschanged', findVoice); } else renderVoiceNote();
     setupParents();
     applySettings();
     setInterval(applySettings, 5 * 60 * 1000); // auto night mode switches on at 7 pm
