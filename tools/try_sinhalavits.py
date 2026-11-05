@@ -20,17 +20,25 @@ for repo in sys.argv[1:]:
         print('=====', repo, sorted(os.listdir(d)))
         for f in glob.glob(os.path.join(d, '*.md')):
             print(open(f, encoding='utf-8').read()[:6000])
-        cfg = (glob.glob(os.path.join(d, '**', 'config.json'), recursive=True) or [None])[0]
+        cfg = (glob.glob(os.path.join(d, '**', '*config*.json'), recursive=True) or [None])[0]
         ckpt = sorted(glob.glob(os.path.join(d, '**', '*.pth'), recursive=True), key=lambda p: ('best' not in p, p))
         print('config', cfg, 'checkpoints', ckpt)
-        if cfg:
-            c = json.load(open(cfg, encoding='utf-8'))
-            print('characters:', json.dumps(c.get('characters'), ensure_ascii=False)[:1500])
-            print('use_phonemes:', c.get('use_phonemes'), 'phonemizer:', c.get('phonemizer'), 'cleaners:', c.get('text_cleaner'))
+        for f in glob.glob(os.path.join(d, 'inference*.py')):
+            print('-----', f); print(open(f, encoding='utf-8').read()[:4000])
+        # the model reads romanized Sinhala, made by the romanizer.py that ships with it
+        sys.path.insert(0, d)
+        import importlib
+        rom = importlib.import_module('romanizer')
+        sys.modules.pop('romanizer', None); sys.path.pop(0)
+        fns = [getattr(rom, n) for n in dir(rom) if 'roman' in n.lower() and callable(getattr(rom, n)) and not n.startswith('_')]
+        print('romanizer functions:', [f.__name__ for f in fns])
+        romanize = fns[0]
         from TTS.utils.synthesizer import Synthesizer
         syn = Synthesizer(tts_checkpoint=ckpt[0], tts_config_path=cfg, use_cuda=False)
         for i, t in enumerate(TEXTS, 1):
-            wav = syn.tts(t)
+            r = romanize(t)
+            print('romanized:', r)
+            wav = syn.tts(r)
             p = os.path.join(OUT, f'vits-{name}-{i}.wav')
             syn.save_wav(wav, p)
             print('recorded', p)
