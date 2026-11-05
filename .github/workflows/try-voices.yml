@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install --extra-index-url https://download.pytorch.org/whl/cpu torch torchaudio coqui-tts huggingface_hub
+      - run: pip install --extra-index-url https://download.pytorch.org/whl/cpu torch torchaudio "coqui-tts[codec]" huggingface_hub
       - run: python tools/try_sinhalavits.py dialoglk/SinhalaVITS-TTS-F1 dialoglk/SinhalaVITS-TTS-F2 dialoglk/SinhalaVITS-TTS-M2
       - name: commit the samples
         run: |
