@@ -1,0 +1,29 @@
+name: try voices
+# Records the same test sentences with SinhalaVITS, to compare with the narration voice by ear.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['claude/**']
+    paths: ['tools/try_sinhalavits.py', '.github/workflows/try-voices.yml']
+permissions:
+  contents: write
+jobs:
+  vits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install --extra-index-url https://download.pytorch.org/whl/cpu torch torchaudio coqui-tts huggingface_hub
+      - run: python tools/try_sinhalavits.py dialoglk/SinhalaVITS-TTS-F1 dialoglk/SinhalaVITS-TTS-F2 dialoglk/SinhalaVITS-TTS-M2
+      - name: commit the samples
+        run: |
+          for f in samples/vits-*.wav; do [ -e "$f" ] && ffmpeg -loglevel error -y -i "$f" -b:a 64k "${f%.wav}.mp3" && rm "$f"; done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add samples
+          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+          git commit -m "Voice try-outs: SinhalaVITS"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
