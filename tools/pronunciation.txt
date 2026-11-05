@@ -1,0 +1,10 @@
+# Pronunciation fixes for the recorded narration (tools/narrate.py)
+#
+# One fix per line:   written = spoken
+# "written" is the text as it appears in the stories (it stays that way on the page).
+# "spoken" is the same word spelled the way it should sound, which is what the voice reads.
+# Matching is by text, so a word's stem also fixes its forms with endings (මිත්‍රයා, මිත්‍රයාට, ...).
+# After a change, the "record narration" GitHub Action re-records only the paragraphs it touches.
+#
+# Example of the format (not a real fix):
+# written-word = spoken-word

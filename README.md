@@ -94,4 +94,5 @@ To re-render PNGs after changing the SVG: `npm i -D playwright && node tools/ren
 
 - Page turning: [StPageFlip](https://github.com/Nodlik/StPageFlip) by Nodlik, MIT licence
 - Fonts: Noto Serif Sinhala (Google), Gemunu Libre (Mooniak), SIL Open Font License 1.1
+- Narration voice: [SinhalaVITS F1](https://huggingface.co/dialoglk/SinhalaVITS-TTS-F1) by Dialog Axiata PLC and the Dialog–UoM Research Lab, MPL-2.0
 - Stories: traditional tales retold in Sinhala; illustrations and code original to this project

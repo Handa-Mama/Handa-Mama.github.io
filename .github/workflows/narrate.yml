@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: ['claude/**']
-    paths: ['data/stories.js', 'tools/narrate.py', '.github/workflows/narrate.yml']
+    paths: ['data/stories.js', 'tools/narrate.py', 'tools/pronunciation.txt', '.github/workflows/narrate.yml']
 permissions:
   contents: write
 concurrency:
@@ -16,14 +16,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      - run: pip install edge-tts==7.3.1
+          python-version: '3.11'
+      - run: pip install --extra-index-url https://download.pytorch.org/whl/cpu torch torchaudio "coqui-tts[codec]" six huggingface_hub imageio-ffmpeg
       - run: python tools/narrate.py
       - name: commit the clips
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add audio data/narration.js
+          git add -A audio data/narration.js
           if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
           git commit -m "Record narration for read to me"
           git pull --rebase origin "${GITHUB_REF_NAME}"
